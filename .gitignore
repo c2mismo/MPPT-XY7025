@@ -1,14 +1,59 @@
-*.tar
-*.tar.*
-*.jar
-*.exe
-*.msi
-*.deb
-*.zip
-*.tgz
-*.log
-*.log.*
-*.sig
+# .gitignore
+#
+# more info https://github.com/github/gitignore
+#
+# Help
+#
+# *       Uno o varios caracteres
+# ?       Un caracter
+# [abc]   Uno de estos caracteres
+# [0-9]   Cualquier caracter entre ellos (del 0 al 9)
+# a/**/z  Directorios anidados ** cualquier directorio entre esos directorios.
+# !       Excepcion *.a  \  !lib.a
+# /archi  solo este directorio no recursivo
+# doc/*.txt       idem
+# build/  ignorar todos los archivos que se llamen build
+# doc/**/*.pdf    todos los pdf en doc y recursivo
 
-pkg/
-src/
+# Excepciones PRIMERO
+!.git
+!.gitignore
+
+# Todos los archivos que comienzan con "."
+.*/
+.??*
+# Cualquiera que termine en
+*~
+
+# OTHERS
+*.lnk
+Thumbs*
+*encryptable
+tmp
+TMP
+temp
+TEMP
+tmp*
+TMP*
+temp*
+TEMP*
+*tmp
+*TMP
+*temp
+*TEMP
+
+# Backups
+*.bak
+*.gho
+*.ori
+*.orig
+*.tmp
+
+# Fnt. https://github.com/github/gitignore/blob/master/Global/Diff.gitignore
+*.patch
+*.diff
+
+# GPG o ssh
+secring.*
+ssh*
+*ssh
