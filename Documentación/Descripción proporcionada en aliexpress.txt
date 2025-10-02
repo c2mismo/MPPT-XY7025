@@ -1,0 +1,45 @@
+Características:
+1.El producto adopta botones de silicona, sensación cómoda en la mano, cada botón con luz indicadora de frío.
+2.El diseño de la pantalla LCD es razonable, la fuente es grande y está llena de una pantalla LCD redondeada y de fuente de alimentación profesional, ¡es querrás la función que tiene!
+3.Al adoptar una carcasa de moldeo por inyección de una sola pieza, ¡el material retardante de llama es más seguro!Diseño de hebilla de doble capa, placa de circuito de doble capa fijada más firmemente
+4.El producto admite protocolo Modbus estándar de comunicación en serie, soporte para actualización de firmware, soporte para carga solar MPPT y funciones integrales.
+5.Actualice la corriente de los terminales soldados de PCB (M3) es mayor, menor calor y más confiable.
+6.El producto tiene una amplia gama de aplicaciones, hay una función de prevención de reflujo que se puede cargar a una variedad de baterías recargables y, con la función MPPT para admitir la carga solar MPPT, se puede conectar a la sonda de temperatura externa para soportar protección contra sobrecalentamiento y pronto.
+
+
+Parámetro:
+Voltaje de entrada: 12 ~ 85 V
+Corriente de salida: 0~25A
+Potencia de salida: 1750W
+Resolución de voltaje: 0,01 V
+Eficiencia de conversión: 95% aproximadamente
+Voltaje de salida: 0 ~ 70 V
+Precisión de voltaje: ±0,5%+1 palabra
+Precisión actual: ±0,5%+3 palabras
+Resolución actual: 0,01A
+Grupo de datos de almacenamiento: 10 grupos
+Función MPPT: admite carga solar MPPT
+Valor típico de ondulación de salida: VPP-150mv
+Zumbador: Sí
+Arranque suave: Sí
+Mecanismo de protección:
+Protección contra subtensión de entrada: 10-95 V ajustable, 10 V predeterminado
+Protección contra sobretensión de salida: 0-72 V ajustable, 72 V predeterminado
+Protección contra sobrecorriente de salida: 0 -27A ajustable, 27A predeterminado
+Protección contra sobre potencia de salida: 0-2000 W ajustable, predeterminado 1800 W
+Protección contra sobretemperatura: 0-110°C ajustable, predeterminado 95°C
+Protección de tiempo de espera: 1 minuto -99 horas 59 minutos, desactivado por defecto
+Protección contra sobrecapacidad: 0~9999Ah ajustable, desactivado por defecto
+Super protección energética: 0~4200KWH ajustable, desactivado por defecto
+
+
+Precauciones:
+1.La entrada no se puede conectar a la alimentación de CA, sin mencionar la alimentación de 220 V.
+2.El voltaje de entrada máximo no puede exceder los 90 V, se recomienda usarlo dentro de 85 V, los polos positivo y negativo no se pueden invertir.
+3.La salida no es anti-backup, al conectar la batería para garantizar que el voltaje de salida de la fuente de alimentación sea siempre mayor que el voltaje de la batería, o en la fuente de alimentación, salida de una sola conducción de la serie de diodos positivos, para evitar que el voltaje de respaldo de la batería queme el suministro de energía
+4.Al conectar la batería al terminal de salida, preste atención a que los polos positivo y negativo no se invierten.
+5.El producto es una fuente de alimentación reductora, el voltaje de salida máximo = voltaje de entrada * 0,945
+
+
+El paquete incluye:
+1 x Actualización XY7025 70V/25A/1750W Fuente de alimentación de voltaje estabilizado CNC Convertidor Buck CC CV Módulo reductor de corriente de voltaje constante
