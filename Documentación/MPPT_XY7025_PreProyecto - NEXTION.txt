@@ -1,0 +1,131 @@
+El Nexion, para varios MPPTs, va a solicitar dos tipos de paquetes de datos:
+
+1.- leerRegistrosCriticos
+Desde Nextion cada determinado tiempo ejem. 10 Min.:
+Solicita datos al arduino del MPPT, los datos pertinentes
+para guardar logs del estado de los MPPTs y
+se guardarán en una microSD del Nextion
+
+2.- leerTodos los registros
+Para visualizar y realizar cambios de configuración de cualquier dato.
+
+
+
+
+Cada t lectura de errores
+
+// Dirección registro PROTECT = 0x0010
+String decodificarProteccion(uint16_t valor) {
+  switch(valor) {
+    case 0: return "NORMAL";
+    case 1: return "SOBRETENSION";
+    case 2: return "SOBRECORRIENTE";
+    case 3: return "SOBREPOTENCIA";
+    case 4: return "SUBTENSION";
+    case 5: return "LIM_CAPACIDAD_AH";
+    case 6: return "LIM_TIEMPO_OPER";
+    case 7: return "SOBRETEMP_INTERNA";
+    case 8: return "SIN_SALIDA";
+    case 9: return "LIM_ENERGIA_WH";
+    case 10: return "LIM_CORRIENTE_ENTRADA";
+    case 11: return "TEMP_EXTERNA";
+    default: return "DESCONOCIDO";
+  }
+}
+// Uso:
+uint16_t estado = leerRegistro(0x0010);
+Serial.print("Estado protección: ");
+Serial.println(decodificarProteccion(estado));
+
+
+
+
+
+Para configurar un MPPT concreto y su perfil:
+
+Para que quede claro en la página de configuración del MPPT:
+
+Nombre identificador del registro del MPPT
+Una casilla no editable con el valor actual
+Una casilla editable para introdución del nuevo valor
+un botón para enviar y realizar el cambio
+
+1.- Envia el nuevo dato al arduino
+2.- El arduino traduce y envia al MPPT
+3.- El arduino solicita de nuevo el dato al MPPT y verifica
+4.- Si es correcto se lo reenvia al Nextion como un valor nuevo
+a la casilla no editable con el valor actual
+
+
+
+
+#include <ModbusMaster.h>
+#include <SoftwareSerial.h>
+
+ModbusMaster mppt1;
+ModbusMaster mppt2;
+ModbusMaster mppt3;
+
+void setup() {
+  Serial2.begin(115200);
+  mppt1.begin(1, Serial2);
+  mppt2.begin(2, Serial2);
+  mppt3.begin(3, Serial2);
+
+  
+  // Configurar control RS485
+  pinMode(DE_RE_PIN, OUTPUT);
+  mppt.preTransmission([](){
+    digitalWrite(DE_RE_PIN, HIGH);
+  });
+  mppt.postTransmission([](){
+    digitalWrite(DE_RE_PIN, LOW);
+  });
+}
+
+void setMpptConfig(uint16_t idDispositivo, uint16_t registro, uint16_t value) {
+
+}
+
+void getMpptConfig(uint16_t idDispositivo, uint16_t registro) {
+
+}
+
+
+void setMpptProtect(uint16_t idDispositivo, uint16_t perfil, uint16_t registro, uint16_t value) {
+// Direcciones base de cada perfil:
+// M0: 0x0050, M1: 0x0060, M2: 0x0070, ..., M9: 0x00E0
+uint16_t dirBasePerfil = 0x0050 + (numeroPerfil * 0x0010);
+}
+
+void getMpptProtect(uint16_t idDispositivo, uint16_t perfil, uint16_t registro, uint16_t value) {
+
+}
+
+
+
+
+void enviarANextion(uint8_t idDispositivo) {
+  Serial.print(nombreDispositivo);
+  Serial.print("n");
+  Serial.print(idDispositivo);
+  Serial.print("_LIMITE_TIEMPO_H=");
+  Serial.print(LIMITE_TIEMPO_H);
+  Serial.write(0xFF); Serial.write(0xFF); Serial.write(0xFF); // Delimitadores Nextion 
+
+  Serial.print(nombreDispositivo);
+  Serial.print("n");
+  Serial.print(idDispositivo);
+  Serial.print("_CORRIENTE_FIN_CARGA=");
+  Serial.print(CORRIENTE_FIN_CARGA);      // Quizás más comodo corrienteFinCarga (como entero por el nextion)
+  Serial.write(0xFF); Serial.write(0xFF); Serial.write(0xFF);
+}
+
+
+
+
+
+
+
+
+
