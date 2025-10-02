@@ -1,0 +1,4 @@
+﻿Nº,Vin (V),Iin (A),Pin (W),Vout (V),Iout (A),Pout (W),Eficiencia,MPPT activo (S/N),Observaciones
+1,Panel solar parcial,,,,,,,,
+2,Panel solar pleno sol,,,,,,,,
+3,Simulación curva I-V,,,,,,,,
