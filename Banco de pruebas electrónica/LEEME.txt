@@ -1,0 +1,14 @@
+
+
+
+Verificar si guarda en memoria el XY7025 despues de corte de corriente,
+sino fuera así guardar los datos mas permanentes como S-OAH y S-OWH
+para restaurar en caso de corte de corriente, en la microSD.
+
+Se puede pantear si hay espacio en memoria ROM suficiente, mantener almenos un perfil predefinido para volcar en una memoria del XY7025.
+MEJOR hacer un scketch volcar en una memoria del XY7025
+
+
+
+
+
