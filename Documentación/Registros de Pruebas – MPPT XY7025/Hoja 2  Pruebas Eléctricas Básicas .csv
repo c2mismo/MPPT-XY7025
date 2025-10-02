@@ -1,0 +1,5 @@
+﻿Nº,Prueba,Vin (V),Iin (A),Vout (V),Iout (A),Potencia In (W),Potencia Out (W),Eficiencia (%),Rizado Vpp (mV),Estado (✔/✖),Observaciones
+1,Arranque suave (12V/2A),,,,,,,,,,
+2,Regulación CV (24V/5A),,,,,,,,,,
+3,Regulación CC (12V/15A),,,,,,,,,,
+4,Transición CV → CC,,,,,,,,,,
