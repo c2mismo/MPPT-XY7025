@@ -1,0 +1,6 @@
+﻿Nº,Condición,Tiempo (min),Vout (V),Iout (A),Temp. Interna (°C),Temp. MOSFET (°C),Protección activada,Estado,Observaciones
+1,Carga 300W constante,0,,,,,,,
+2,Carga 300W constante,5,,,,,,,
+3,Carga 300W constante,10,,,,,,,
+4,Carga 1000W (70V/14A),0,,,,,,,
+5,Carga 1000W (70V/14A),5,,,,,,,
