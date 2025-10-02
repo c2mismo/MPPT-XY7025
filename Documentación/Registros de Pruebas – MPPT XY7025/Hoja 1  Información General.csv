@@ -1,0 +1,8 @@
+﻿Campo,Valor
+Fecha de prueba,=HOY()
+Técnico responsable,[Nombre]
+Número de serie del equipo,[Ej: XY7025-XXXX]
+Firmware,[Leer registro 0x0017]
+Dirección Modbus,[Leer registro 0x0018]
+Baudrate,[Leer registro 0x0019]
+Condiciones ambientales,"[Temp. ambiente, humedad, etc.]"
