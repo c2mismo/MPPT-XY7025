@@ -1,0 +1,6 @@
+﻿Nº,Protección,Umbral configurado,Valor de disparo,¿Se activó? (S/N),¿Se apagó salida?,¿Se reseteó correctamente?,Código PROTECT (0x0010),Observaciones
+1,OVP,72.00 V,73 V,,,,,
+2,OCP,27.00 A,28 A,,,,,
+3,OPP,1800 W,1900 W,,,,,
+4,LVP,10.00 V,9.5 V,,,,,
+5,OTP,95 °C,Calentamiento forzado,,,,,
