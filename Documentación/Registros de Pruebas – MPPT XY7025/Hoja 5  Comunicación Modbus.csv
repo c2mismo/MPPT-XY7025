@@ -1,0 +1,7 @@
+﻿Nº,Acción,Registro (Hex),Valor esperado,Valor leído,Escrito correctamente,CRC error,Tiempo de respuesta (ms),Estado,Observaciones
+1,Leer Vout,0x0002,XX.XX V,,,,,,
+2,Leer Iout,0x0003,XX.XXX A,,,,,,
+3,Escribir V-SET = 24.00V,0x0000,2400,,,,,,
+4,Activar salida,0x0012,1,,,,,,
+5,Cargar perfil M1,0x001D,1,,,,,,
+6,Leer estado protección,0x0010,0,,,,,,
