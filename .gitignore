@@ -18,7 +18,7 @@
 # Excepciones PRIMERO
 !.git
 !.gitignore
-!.kilocode/mcp.json
+!.kilocode/*
 
 # Todos los archivos que comienzan con "."
 .*/
