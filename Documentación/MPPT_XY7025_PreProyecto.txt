@@ -1,0 +1,115 @@
+Estudiar si es posible implementar en un arduino mas pequeño que un arduino UNO, sino utilizar un ESP32.
+
+Necesita tres comunicaciones UARTs:
+1.- Debug
+2.- UART - RS485 para comunicación con XY7025
+3.- UART - RS485 para comunicación con otros dispositivos
+
+Un módulo reloj de precision ejemplo DS3231
+
+Un módulo adaptador tarjeta MicroSD para guardar los registros
+
+Un módulo ADS1115 interfaz I2C con comparador integrado
+
+Un zumbador para indicar errores
+
+
+
+
+
+
+Crear una libreria XY7025.h
+Usando la libreria ModbusMaster.h Fnt. https://github.com/4-20ma/ModbusMaster
+
+La libreria debe de poder trabajar con varios MPPT
+Para construir la libreria habrá que indicar los pines que se van a utilizar
+para comunicacion
+
+Por lo pronto cuatros funciones:
+
+1.- Leer un registro concreto.
+
+
+1.- Leer Registros Criticos.
+Todos esos registros dignos de ser guardados en un documento para poder analizar rendimientos
+
+2.- Leer todos los registros.
+
+3.- Enviar valor nuevo para cualquier registro escribible.
+debe verificar la correcta escritura, para eso reservamos una variable
+(bool envioCorrecto = 0;) que en un inicio debe ser low
+envia el dato al MPPT
+solicita al MPPT de nuevo el dato
+verifica si es correcto
+si el dato devuelto es el correcto (envioCorrecto = 1;)
+
+4.- Enviar valores para una configuración preestablecida para baterias LFPO
+
+
+*.- Monitoreo continuo de PROTECT:
+Verificar este registro cada 5-10 segundos
+
+
+if(decodificarProteccion(estado) == "SOBRETEMP_INTERNA") {
+  reducirCarga(50);  // Disminuir potencia al 50%
+  activarVentiladores();
+}
+
+
+
+
+Debe comunicarse con mas de un dispositivo XY7025
+
+
+
+
+
+
+#include <ModbusMaster.h>
+
+// Definir número máximo de dispositivos Modbus
+#define MAX_DEVICES 10
+
+// Array de objetos ModbusMaster, uno por cada posible unidad Modbus
+ModbusMaster node[MAX_DEVICES];
+
+// Registro de protección de sobretensión
+const uint16_t S_OVP = 0x0052;
+const uint16_t S_INI = 0x005D;
+
+void setup() {
+  Serial.begin(115200);
+  Serial2.begin(115200);  // Puerto Serie para RS485
+
+  // Inicializar cada nodo con su ID Modbus
+  // Supongamos que tus dispositivos tienen IDs: 1, 2, 3, etc.
+  for (int i = 1; i <= 3; i++) {  // Ajusta según cuántos dispositivos tengas
+    node[i].begin(i, Serial2);
+  }
+
+  // Configurar protección básica en MPPT ID=1
+  writeRegister(1, S_OVP, 1450);  // S-OVP = 14.50V
+  writeRegister(1, S_INI, 1);     // S-INI = Salida ON al arrancar
+
+  // Si quisieras escribir en otro MPPT, por ejemplo ID=2
+  // writeRegister(2, S_OVP, 1460);  // Diferente valor para otro dispositivo
+}
+
+// Escribir registro (función 0x06) a una unidad Modbus específica
+void writeRegister(uint8_t unidad, uint16_t reg, uint16_t value) {
+  node[unidad].writeSingleRegister(reg, value);
+}
+
+void loop() {
+  // Aquí puedes leer o escribir según necesites
+  delay(1000);
+}
+
+
+
+
+
+
+
+
+
