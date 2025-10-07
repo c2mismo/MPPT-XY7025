@@ -1,5 +1,5 @@
-# MPPT-XY7025 Controller
-# Controlador MPPT-XY7025
+# MPPT-XY7025 smart/programable Controller
+# Controlador smart programable MPPT-XY7025
 
 **English / Español**
 
