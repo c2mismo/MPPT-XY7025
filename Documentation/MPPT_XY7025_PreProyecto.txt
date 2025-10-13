@@ -7,24 +7,35 @@ Cualquier pin excepto el 0 y 1 Debug & i2c A4 y A5 & SPI MOSI 11, MISO 12 y SCK 
 3.- UART - RS485 para comunicación con otros dispositivos
 Cualquier pin excepto el 0 y 1 Debug & i2c A4 y A5 & SPI MOSI 11, MISO 12 y SCK 13
 
+
+
+
+
+
 Un módulo reloj de precision ejemplo DS3231
 
 Pines principales del módulo DS3231 (módulo típico con breakout):
 el DS3231 usa normalmente la dirección 0x68
 
-		VCC: Alimentación (generalmente 3.3V o 5V).
-VCC
-		GND: Conexión a tierra.
-GND
-		SCL: Línea de reloj del bus I²C.
+
+VCC: Alimentación (generalmente 3.3V o 5V).
+PIN 5V
+
+GND: Conexión a tierra.
+PIN GND
+
+SCL: Línea de reloj del bus I²C.
     En Arduino UNO, este pin se conecta al pin A5 (o al pin marcado como SCL en placas R3)
 PIN A5
-    SDA: Línea de datos del bus I²C.
+
+SDA: Línea de datos del bus I²C.
 		En Arduino UNO, este pin se conecta al pin A4 (o al pin marcado como SDA en placas R3)
 PIN A4
-		SQW / INT: Cualquier pin digital
+
+SQW / INT: Cualquier pin digital
 PIN DIO
-		32K: Salida de señal de reloj de 32.768 kHz
+
+32K: Salida de señal de reloj de 32.768 kHz
 No CN
 
 
@@ -33,27 +44,31 @@ No CN
 Un módulo ADS1115 interfaz I2C con comparador integrado
 el ADS1115 usa normalmente la dirección 0x48 por defecto si no hay conflicto
 
-		VDD → Alimentación (puedes conectar a 5V o 3.3V; el chip acepta de 2.0V a 5.5V)
-VCC
-		GND → Tierra
-GND
-		SCL: Línea de reloj del bus I²C.
+VDD → Alimentación (puedes conectar a 5V o 3.3V; el chip acepta de 2.0V a 5.5V)
+PIN 5V
+
+GND → Tierra
+PIN GND
+
+SCL: Línea de reloj del bus I²C.
     En Arduino UNO, este pin se conecta al pin A5 (o al pin marcado como SCL en placas R3)
 PIN A5
-    SDA: Línea de datos del bus I²C.
+
+SDA: Línea de datos del bus I²C.
 		En Arduino UNO, este pin se conecta al pin A4 (o al pin marcado como SDA en placas R3)
 PIN A4
-		ADDR → Pin para seleccionar la dirección I²C del dispositivo .
+
+ALERT/RDY:
+    Es una salida programable que puede indicar cuando una conversión ha terminado o cuando una señal supera un umbral (comparador interno).
+    Si lo usas, conéctalo a cualquier pin digital del Arduino
+No CN
+
+ADDR → Pin para seleccionar la dirección I²C del dispositivo .
     ✅ Importante: El ADS1115 permite hasta 4 direcciones I²C diferentes, cambiando cómo se conecta el pin ADDR:
         ADDR a GND → dirección 0x48 (la más común)
         ADDR a VDD → 0x49
         ADDR a SDA → 0x4A
         ADDR a SCL → 0x4B
-ALERT/RDY:
-    Es una salida programable que puede indicar cuando una conversión ha terminado o cuando una señal supera un umbral (comparador interno).
-    Si lo usas, conéctalo a cualquier pin digital del Arduino
-
-
 Uses resistencias de pull-up en SDA/SCL (muchos módulos las incluyen; si no, añade 4.7 kΩ a 5V en ambos pines).
 
 
@@ -62,18 +77,23 @@ Uses resistencias de pull-up en SDA/SCL (muchos módulos las incluyen; si no, a�
 
 Un módulo adaptador tarjeta MicroSD SPI para guardar los registros
 
-		CS: Chip Select (activo en bajo)
-PIN 10
-		MOSI: Master Out Slave In
-PIN 11
-		MISO: Master In Slave Out
-PIN 12
-		SCK. Clock SPI
-PIN 13
-		3v3 → Alimentación
+3v3: Alimentación
 PIN 3v3
-		GND
-PIN GND → Tierra
+
+GND: Tierra
+PIN GND
+
+CS: Chip Select (activo en bajo)
+PIN 10
+
+MOSI: Master Out Slave In
+PIN 11
+
+MISO: Master In Slave Out
+PIN 12
+
+SCK. Clock SPI
+PIN 13
 
 
 
@@ -183,6 +203,7 @@ void loop() {
   // Aquí puedes leer o escribir según necesites
   delay(1000);
 }
+
 
 
 
