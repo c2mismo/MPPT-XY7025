@@ -1,17 +1,4 @@
-Estudiar si es posible implementar en un arduino mas pequeño que un arduino UNO, sino utilizar un ESP32.
 
-Necesita tres comunicaciones UARTs:
-1.- Debug
-2.- UART - RS485 para comunicación con XY7025
-3.- UART - RS485 para comunicación con otros dispositivos
-
-Un módulo reloj de precision ejemplo DS3231
-
-Un módulo adaptador tarjeta MicroSD para guardar los registros
-
-Un módulo ADS1115 interfaz I2C con comparador integrado
-
-Un zumbador para indicar errores
 
 
 
@@ -27,7 +14,7 @@ para comunicacion
 
 Por lo pronto cuatros funciones:
 
-1.- Leer un registro concreto.
+1.- Leer un registro concreto, espcialmente la dirección del dispositivo (SLAVE-ADD).
 
 
 1.- Leer Registros Criticos.
