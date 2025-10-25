@@ -52,6 +52,8 @@ Debe comunicarse con mas de un dispositivo XY7025
 
 
 
+#include <Arduino.h>
+#include <SoftwareSerial.h>
 #include <ModbusMaster.h>
 
 // Definir número máximo de dispositivos Modbus
@@ -70,7 +72,7 @@ void setup() {
 
   // Inicializar cada nodo con su ID Modbus
   // Supongamos que tus dispositivos tienen IDs: 1, 2, 3, etc.
-  for (int i = 1; i <= 3; i++) {  // Ajusta según cuántos dispositivos tengas
+  for (int i = 1; i <= MAX_DEVICES; i++) {  // Ajusta según cuántos dispositivos tengas
     node[i].begin(i, Serial2);
   }
 
