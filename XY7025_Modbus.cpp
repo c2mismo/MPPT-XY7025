@@ -41,6 +41,9 @@ void XY7025_Modbus::enableDebug(bool enable) {
 bool XY7025_Modbus::readHoldingRegisters(uint16_t address, uint8_t count) {
     uint8_t result;
     uint8_t attempt = 0;
+    unsigned long startTime = millis(); // Tiempo inicial para control de timeout total
+    unsigned long retryDelay = 100;     // Delay inicial entre reintentos
+    const unsigned long maxRetryDelay = 500; // Máximo delay entre reintentos
     
     do {
         result = node.readHoldingRegisters(address, count);
@@ -59,7 +62,17 @@ bool XY7025_Modbus::readHoldingRegisters(uint16_t address, uint8_t count) {
             Serial.println(result, HEX);
         }
         
-        delay(100); // Pequeño delay entre reintentos
+        // Verificar si se ha excedido el timeout total
+        if (millis() - startTime >= timeout) {
+            if (debugMode) {
+                Serial.println(F("XY7025_Modbus: Timeout total excedido"));
+            }
+            return false;
+        }
+        
+        // Delay entre reintentos con backoff exponencial
+        delay(retryDelay);
+        retryDelay = min(retryDelay * 2, maxRetryDelay); // Duplicar delay hasta el máximo
         
     } while (attempt < retries);
     
@@ -73,6 +86,9 @@ uint16_t XY7025_Modbus::getResponseBuffer(uint8_t index) {
 
 // Leer todos los registros principales
 bool XY7025_Modbus::readAllRegisters(Print& output) {
+    bool allSuccess = true; // Indicador de éxito global
+    String errorDetails = ""; // Acumular detalles de errores
+    
     // Leer registros de estado básico (0x0000-0x0005)
     if (readHoldingRegisters(0x0000, 6)) {
         float voltajeConfig = DataConverter::toVoltage(getResponseBuffer(0));
@@ -94,11 +110,19 @@ bool XY7025_Modbus::readAllRegisters(Print& output) {
         if (readHoldingRegisters(XY7025_AH_LOW, 2)) {
             uint32_t ampHours = DataConverter::combine32(getResponseBuffer(1), getResponseBuffer(0));
             output.print(F("Amperios-hora: ")); output.print(ampHours / 1000.0); output.println(F("Ah"));
+        } else {
+            allSuccess = false;
+            errorDetails += F(" [Amperios-hora: ERROR]");
+            output.println(F("Amperios-hora: ERROR"));
         }
         
         if (readHoldingRegisters(XY7025_WH_LOW, 2)) {
             uint32_t wattHours = DataConverter::combine32(getResponseBuffer(1), getResponseBuffer(0));
             output.print(F("Vatios-hora: ")); output.print(wattHours / 100.0); output.println(F("Wh"));
+        } else {
+            allSuccess = false;
+            errorDetails += F(" [Vatios-hora: ERROR]");
+            output.println(F("Vatios-hora: ERROR"));
         }
         
         // Leer temperaturas
@@ -107,17 +131,34 @@ bool XY7025_Modbus::readAllRegisters(Print& output) {
             float tempExt = DataConverter::toTemperature(getResponseBuffer(1));
             output.print(F("Temp. Interna: ")); output.print(tempInt); output.println(F("°C"));
             output.print(F("Temp. Externa: ")); output.print(tempExt); output.println(F("°C"));
+        } else {
+            allSuccess = false;
+            errorDetails += F(" [Temperaturas: ERROR]");
+            output.println(F("Temp. Interna: ERROR"));
+            output.println(F("Temp. Externa: ERROR"));
         }
         
         // Leer estado de protección
         uint8_t protectStatus = getProtectionStatus();
-        output.print(F("Estado de Protección: ")); 
-        output.println(getProtectionDescription(protectStatus));
+        if (protectStatus == XY7025_ERROR_UINT8) {
+            allSuccess = false;
+            errorDetails += F(" [Protección: ERROR_COM]");
+            output.println(F("Estado de Protección: ERROR COMUNICACIÓN"));
+        } else {
+            output.print(F("Estado de Protección: "));
+            output.println(getProtectionDescription(protectStatus));
+        }
         
-        return true;
+        // Mostrar resumen de errores si los hay
+        if (!allSuccess && debugMode) {
+            Serial.print(F("XY7025_Modbus: Errores parciales en readAllRegisters"));
+            Serial.println(errorDetails);
+        }
+        
+        return allSuccess;
     }
     
-    output.println(F("Error: No se pudieron leer los registros"));
+    output.println(F("Error: No se pudieron leer los registros básicos"));
     return false;
 }
 
@@ -170,13 +211,18 @@ bool XY7025_Modbus::writeMultipleRegisters(uint16_t address, uint16_t* values, u
 // Probar dirección de esclavo
 bool XY7025_Modbus::probeSlaveAddress(uint8_t address) {
     uint8_t originalAddress = slaveAddress;
+    bool success = false;
+    
+    // Cambiar temporalmente la dirección del esclavo
     slaveAddress = address;
     node.begin(slaveAddress, *serial);
     
     // Intentar leer un registro conocido (voltaje de salida)
-    bool success = readHoldingRegisters(XY7025_VOUT, 1);
+    // Si hay algún error crítico, success permanecerá en false
+    success = readHoldingRegisters(XY7025_VOUT, 1);
     
-    // Restaurar dirección original
+    // Restaurar dirección original SIEMPRE, incluso si hay error
+    // Esto previene la corrupción de estado del objeto
     slaveAddress = originalAddress;
     node.begin(slaveAddress, *serial);
     
@@ -195,90 +241,94 @@ float XY7025_Modbus::readVoltageOutput() {
     if (readHoldingRegisters(XY7025_VOUT, 1)) {
         return DataConverter::toVoltage(getResponseBuffer(0));
     }
-    return -1.0; // Valor de error
+    return XY7025_ERROR_FLOAT; // NAN indica error de comunicación
 }
 
 float XY7025_Modbus::readCurrentOutput() {
     if (readHoldingRegisters(XY7025_IOUT, 1)) {
         return DataConverter::toCurrent(getResponseBuffer(0));
     }
-    return -1.0; // Valor de error
+    return XY7025_ERROR_FLOAT; // NAN indica error de comunicación
 }
 
 float XY7025_Modbus::readPowerOutput() {
     if (readHoldingRegisters(XY7025_POWER, 1)) {
         return DataConverter::toPower(getResponseBuffer(0));
     }
-    return -1.0; // Valor de error
+    return XY7025_ERROR_FLOAT; // NAN indica error de comunicación
 }
 
 float XY7025_Modbus::readVoltageInput() {
     if (readHoldingRegisters(XY7025_UIN, 1)) {
         return DataConverter::toVoltage(getResponseBuffer(0));
     }
-    return -1.0; // Valor de error
+    return XY7025_ERROR_FLOAT; // NAN indica error de comunicación
 }
 
 uint32_t XY7025_Modbus::readAmpHours() {
     if (readHoldingRegisters(XY7025_AH_LOW, 2)) {
         return DataConverter::combine32(getResponseBuffer(1), getResponseBuffer(0));
     }
-    return 0; // Valor de error
+    return XY7025_ERROR_UINT32; // 0xFFFFFFFF indica error de comunicación
 }
 
 uint32_t XY7025_Modbus::readWattHours() {
     if (readHoldingRegisters(XY7025_WH_LOW, 2)) {
         return DataConverter::combine32(getResponseBuffer(1), getResponseBuffer(0));
     }
-    return 0; // Valor de error
+    return XY7025_ERROR_UINT32; // 0xFFFFFFFF indica error de comunicación
 }
 
 float XY7025_Modbus::readTemperatureInternal() {
     if (readHoldingRegisters(XY7025_T_IN, 1)) {
         return DataConverter::toTemperature(getResponseBuffer(0));
     }
-    return -999.0; // Valor de error
+    return XY7025_ERROR_FLOAT; // NAN indica error de comunicación
 }
 
 float XY7025_Modbus::readTemperatureExternal() {
     if (readHoldingRegisters(XY7025_T_EX, 1)) {
         return DataConverter::toTemperature(getResponseBuffer(0));
     }
-    return -999.0; // Valor de error
+    return XY7025_ERROR_FLOAT; // NAN indica error de comunicación
 }
 
 // Funciones de configuración
 bool XY7025_Modbus::setOutputVoltage(float voltage) {
-    // Validar rango de voltaje (0-100V típicamente)
-    if (voltage < 0.0 || voltage > 100.0) {
+    // Usar la validación integrada en DataConverter
+    uint16_t value = DataConverter::fromVoltage(voltage);
+    if (value == XY7025_ERROR_UINT16) {
         if (debugMode) {
-            Serial.println(F("XY7025_Modbus: Voltaje fuera de rango"));
+            Serial.print(F("XY7025_Modbus: Voltaje fuera de rango (0-"));
+            Serial.print(XY7025_MAX_VOLTAGE);
+            Serial.println(F("V)"));
         }
         return false;
     }
-    
-    uint16_t value = DataConverter::fromVoltage(voltage);
     return writeRegister(XY7025_V_SET, value);
 }
 
 bool XY7025_Modbus::setOutputCurrent(float current) {
-    // Validar rango de corriente (0-30A típicamente)
-    if (current < 0.0 || current > 30.0) {
+    // Usar la validación integrada en DataConverter
+    uint16_t value = DataConverter::fromCurrent(current);
+    if (value == XY7025_ERROR_UINT16) {
         if (debugMode) {
-            Serial.println(F("XY7025_Modbus: Corriente fuera de rango"));
+            Serial.print(F("XY7025_Modbus: Corriente fuera de rango (0-"));
+            Serial.print(XY7025_MAX_CURRENT);
+            Serial.println(F("A)"));
         }
         return false;
     }
-    
-    uint16_t value = DataConverter::fromCurrent(current);
     return writeRegister(XY7025_I_SET, value);
 }
 
 bool XY7025_Modbus::setOutputPower(float power) {
-    // Validar rango de potencia (0-1000W típicamente)
-    if (power < 0.0 || power > 1000.0) {
+    // Validar rango de potencia usando las constantes definidas
+    if (power < 0.0 || power > XY7025_MAX_POWER) {
         if (debugMode) {
-            Serial.println(F("XY7025_Modbus: Potencia fuera de rango"));
+            Serial.print(F("XY7025_Modbus: Potencia fuera de rango (0-"));
+            Serial.print(XY7025_MAX_POWER);
+            Serial.println(F("W)"));
         }
         return false;
     }
@@ -312,7 +362,9 @@ uint8_t XY7025_Modbus::getProtectionStatus() {
     if (readHoldingRegisters(XY7025_PROTECT, 1)) {
         return getResponseBuffer(0) & 0xFF; // Solo el byte bajo
     }
-    return PROTECT_NORMAL; // Por defecto, asumir normal
+    // Si hay error de comunicación, retornar un código de error especial
+    // en lugar de ocultar el error con PROTECT_NORMAL
+    return XY7025_ERROR_UINT8; // 0xFF indica error de comunicación
 }
 
 String XY7025_Modbus::getProtectionDescription(uint8_t status) {

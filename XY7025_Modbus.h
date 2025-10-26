@@ -90,6 +90,21 @@ const uint8_t XY7025_ILLEGAL_FUNCTION   = 0x01;  // Función no soportada
 const uint8_t XY7025_ILLEGAL_ADDRESS    = 0x02;  // Dirección inválida
 const uint8_t XY7025_ILLEGAL_VALUE      = 0x03;  // Valor inválido
 
+// Constantes para indicar errores en valores de retorno
+const float XY7025_ERROR_FLOAT          = NAN;      // Error para valores float (Not a Number)
+const uint32_t XY7025_ERROR_UINT32      = 0xFFFFFFFF; // Error para valores uint32 (máximo valor)
+const int16_t XY7025_ERROR_INT16        = -32768;   // Error para valores int16 (mínimo valor)
+const uint16_t XY7025_ERROR_UINT16      = 0xFFFF;   // Error para valores uint16 (máximo valor)
+const uint8_t XY7025_ERROR_UINT8        = 0xFF;     // Error para valores uint8 (máximo valor)
+const bool XY7025_ERROR_BOOL            = false;    // Error para valores booleanos
+
+// Límites de validación para conversiones
+const float XY7025_MAX_VOLTAGE          = 100.0;    // Voltaje máximo permitido (V)
+const float XY7025_MAX_CURRENT          = 30.0;     // Corriente máxima permitida (A)
+const float XY7025_MAX_POWER            = 1000.0;   // Potencia máxima permitida (W)
+const float XY7025_MIN_TEMPERATURE      = -273.15;  // Temperatura mínima permitida (°C)
+const float XY7025_MAX_TEMPERATURE      = 200.0;    // Temperatura máxima permitida (°C)
+
 // Estados de Protección
 const uint8_t PROTECT_NORMAL            = 0;   // Funcionamiento normal
 const uint8_t PROTECT_OVP                = 1;   // Sobretensión
@@ -124,16 +139,30 @@ public:
         return raw / 10.0;       // 1 decimal
     }
     
-    // Conversión de valores reales a raw
+    // Conversión de valores reales a raw con validación de rangos
     static uint16_t fromVoltage(float voltage) {
+        // Validar rango para prevenir desbordamiento de uint16_t
+        if (voltage < 0.0 || voltage > XY7025_MAX_VOLTAGE) {
+            return XY7025_ERROR_UINT16; // Retornar valor de error si fuera de rango
+        }
         return (uint16_t)(voltage * 100);
     }
     
     static uint16_t fromCurrent(float current) {
+        // Validar rango para prevenir desbordamiento de uint16_t
+        // Máximo valor: 65535 / 1000 = 65.535 A
+        if (current < 0.0 || current > XY7025_MAX_CURRENT) {
+            return XY7025_ERROR_UINT16; // Retornar valor de error si fuera de rango
+        }
         return (uint16_t)(current * 1000);
     }
     
     static uint16_t fromPower(float power) {
+        // Validar rango para prevenir desbordamiento de uint16_t
+        // Máximo valor: 65535 / 100 = 655.35 W
+        if (power < 0.0 || power > XY7025_MAX_POWER) {
+            return XY7025_ERROR_UINT16; // Retornar valor de error si fuera de rango
+        }
         return (uint16_t)(power * 100);
     }
     

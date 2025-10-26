@@ -34,16 +34,17 @@ Se ha implementado exitosamente la biblioteca XY7025_Modbus para Arduino, que pe
 - **Offset de registros**: 0 (direcciones directas) como se especifica
 
 ### Manejo de Errores
-- **Timeout configurable**: Por defecto 1000ms
-- **Reintentos automáticos**: Por defecto 3 intentos
-- **Modo debug**: Mensajes detallados de error
-- **Validación de parámetros**: Rangos de voltaje, corriente y perfiles
+- **Timeout configurable**: Por defecto 1000ms con control de timeout total
+- **Reintentos automáticos**: Por defecto 3 intentos con backoff exponencial
+- **Modo debug**: Mensajes detallados de error y acumulación de detalles de errores
+- **Validación de parámetros**: Rangos de voltaje, corriente, potencia y temperatura con constantes definidas
+- **Valores de error específicos**: NAN para float, 0xFFFFFFFF para uint32, 0xFFFF para uint16, etc.
 
 ### Conversiones de Datos
-- **Voltaje**: 2 decimales (ej: 24.56V → 2456)
-- **Corriente**: 3 decimales (ej: 1.234A → 1234)
-- **Potencia**: 2 decimales (ej: 123.45W → 12345)
-- **Temperatura**: 1 decimal (ej: 85.2°C → 852)
+- **Voltaje**: 2 decimales (ej: 24.56V → 2456) con validación de rango 0-100V
+- **Corriente**: 3 decimales (ej: 1.234A → 1234) con validación de rango 0-30A
+- **Potencia**: 2 decimales (ej: 123.45W → 12345) con validación de rango 0-1000W
+- **Temperatura**: 1 decimal (ej: 85.2°C → 852) con validación de rango -273.15°C a 200°C
 - **Registros de 32 bits**: Combinación de alta y baja
 
 ### Funciones Principales
@@ -89,9 +90,10 @@ void loop() {
 - Evita el uso de `String` en operaciones críticas
 
 ### Seguridad
-- Validación de rangos antes de escrituras
-- Verificación de estados de protección
-- Límites máximos/mínimos para parámetros
+- Validación de rangos antes de escrituras con constantes definidas (XY7025_MAX_VOLTAGE, etc.)
+- Verificación de estados de protección con retorno de error específico
+- Límites máximos/mínimos para parámetros integrados en DataConverter
+- Restauración garantizada de estado en funciones de prueba
 
 ### Optimización
 - Reutilización de buffers de lectura
@@ -128,6 +130,7 @@ Todos los formatos siguen la especificación del fabricante:
 2. **Funciones adicionales**: Soporte para lectura de perfiles completos
 3. **Validación mejorada**: Verificación de CRC más robusta
 4. **Documentación**: Añadir más ejemplos de casos de uso específicos
+5. **Testing automatizado**: Crear suite de pruebas unitarias para validación de rangos
 
 ## Conclusión
 
