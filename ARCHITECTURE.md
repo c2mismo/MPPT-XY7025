@@ -19,7 +19,7 @@ Biblioteca Arduino para control del regulador MPPT XY7025 mediante protocolo Mod
 classDiagram
     class XY7025_Modbus {
         -SoftwareSerial* serial
-        -ModbusMaster node
+        -ModbusMaster modbus
         -uint8_t slaveAddress
         -uint16_t timeout
         -uint8_t retries
@@ -285,8 +285,8 @@ XY7025_Modbus::XY7025_Modbus(SoftwareSerial& serial, uint8_t address = XY7025_DE
 
 bool XY7025_Modbus::begin() {
     serial->begin(115200);
-    node.begin(slaveAddress, *serial);
-    node.setTimeout(timeout);
+    modbus.begin(slaveAddress, *serial);
+    modbus.setTimeout(timeout);
     return true;
 }
 ```
@@ -320,9 +320,9 @@ bool XY7025_Modbus::readAllRegisters(Print& output) {
 
 ```cpp
 bool XY7025_Modbus::writeRegister(uint16_t address, uint16_t value) {
-    uint8_t result = node.writeSingleRegister(address, value);
+    uint8_t result = modbus.writeSingleRegister(address, value);
     
-    if (result == node.ku8MBSuccess) {
+    if (result == modbus.ku8MBSuccess) {
         if (debugMode) {
             Serial.print("Registro 0x"); Serial.print(address, HEX);
             Serial.print(" escrito con valor: "); Serial.println(value);
