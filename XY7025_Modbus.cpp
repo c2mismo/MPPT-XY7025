@@ -12,8 +12,8 @@ XY7025_Modbus::XY7025_Modbus(SoftwareSerial& serial, uint8_t address) {
 // Configuración inicial
 bool XY7025_Modbus::begin(uint32_t baudRate) {
     serial->begin(baudRate);
-    node.begin(slaveAddress, *serial);
-    node.setTimeout(timeout);
+    modbus.begin(slaveAddress, *serial);
+    modbus.setTimeout(timeout);
     
     if (debugMode) {
         Serial.println(F("XY7025_Modbus: Inicializado con éxito"));
@@ -24,7 +24,7 @@ bool XY7025_Modbus::begin(uint32_t baudRate) {
 // Configurar timeout
 void XY7025_Modbus::setTimeout(uint16_t timeout) {
     this->timeout = timeout;
-    node.setTimeout(timeout);
+    modbus.setTimeout(timeout);
 }
 
 // Configurar reintentos
@@ -46,10 +46,10 @@ bool XY7025_Modbus::readHoldingRegisters(uint16_t address, uint8_t count) {
     const unsigned long maxRetryDelay = 500; // Máximo delay entre reintentos
     
     do {
-        result = node.readHoldingRegisters(address, count);
+        result = modbus.readHoldingRegisters(address, count);
         attempt++;
         
-        if (result == node.ku8MBSuccess) {
+        if (result == modbus.ku8MBSuccess) {
             return true;
         }
         
@@ -81,7 +81,7 @@ bool XY7025_Modbus::readHoldingRegisters(uint16_t address, uint8_t count) {
 
 // Obtener valor del buffer de respuesta
 uint16_t XY7025_Modbus::getResponseBuffer(uint8_t index) {
-    return node.getResponseBuffer(index);
+    return modbus.getResponseBuffer(index);
 }
 
 // Leer todos los registros principales
@@ -164,9 +164,9 @@ bool XY7025_Modbus::readAllRegisters(Print& output) {
 
 // Escribir un solo registro
 bool XY7025_Modbus::writeRegister(uint16_t address, uint16_t value) {
-    uint8_t result = node.writeSingleRegister(address, value);
+    uint8_t result = modbus.writeSingleRegister(address, value);
     
-    if (result == node.ku8MBSuccess) {
+    if (result == modbus.ku8MBSuccess) {
         if (debugMode) {
             Serial.print(F("XY7025_Modbus: Registro 0x"));
             Serial.print(address, HEX);
@@ -187,9 +187,9 @@ bool XY7025_Modbus::writeRegister(uint16_t address, uint16_t value) {
 
 // Escribir múltiples registros
 bool XY7025_Modbus::writeMultipleRegisters(uint16_t address, uint16_t* values, uint8_t count) {
-    uint8_t result = node.writeMultipleRegisters(address, values, count);
+    uint8_t result = modbus.writeMultipleRegisters(address, values, count);
     
-    if (result == node.ku8MBSuccess) {
+    if (result == modbus.ku8MBSuccess) {
         if (debugMode) {
             Serial.print(F("XY7025_Modbus: "));
             Serial.print((int)count);
@@ -215,7 +215,7 @@ bool XY7025_Modbus::probeSlaveAddress(uint8_t address) {
     
     // Cambiar temporalmente la dirección del esclavo
     slaveAddress = address;
-    node.begin(slaveAddress, *serial);
+    modbus.begin(slaveAddress, *serial);
     
     // Intentar leer un registro conocido (voltaje de salida)
     // Si hay algún error crítico, success permanecerá en false
@@ -224,7 +224,7 @@ bool XY7025_Modbus::probeSlaveAddress(uint8_t address) {
     // Restaurar dirección original SIEMPRE, incluso si hay error
     // Esto previene la corrupción de estado del objeto
     slaveAddress = originalAddress;
-    node.begin(slaveAddress, *serial);
+    modbus.begin(slaveAddress, *serial);
     
     if (debugMode) {
         Serial.print(F("XY7025_Modbus: Prueba de dirección "));

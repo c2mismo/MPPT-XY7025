@@ -176,7 +176,7 @@ public:
 class XY7025_Modbus {
 private:
     SoftwareSerial* serial;
-    ModbusMaster node;
+    ModbusMaster modbus;
     uint8_t slaveAddress;
     uint16_t timeout;
     uint8_t retries;
