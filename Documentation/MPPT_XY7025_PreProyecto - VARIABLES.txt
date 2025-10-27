@@ -82,8 +82,8 @@ uint16_t HABILITAR_NTC_EXT;       // S-ETP       R/W 0 (0x005E)  // 0=OFF, 1=ON
 
 
 // ================================================================================================
-// ALIAS ARDUINO - ALIAS XY7025 - Lectura R Escritura W - N Decimales - (Registros 0x0050 - 0x005E)
-// Estos datos siguientes son los datos que se pueden personalizar en cada perfil (Excepto S-INI)
+// ALIAS ARDUINO - ALIAS XY7025 - Lectura R Escritura W - N Decimales - (Registros 0x0050 - 0x005D)
+// Estos datos siguientes son los datos que se pueden personalizar en cada perfil
 // ================================================================================================
 uint16_t voltajeObjetivo;   // V-SET       R/W 2 (0x0050)  // Perfil rápido e.g., 10.50V
 uint16_t corrienteObjetivo; // I-SET       R/W 3 (0x0051)  // Perfil rápido e.g., 35.986A
@@ -133,7 +133,7 @@ uint16_t SALIDA_INICIO;           // S-INI       R/W 0 (0x005D)  // 0=OFF, 1=ON 
 // ...            ...
 // ...            ...
 // M9      (0x00E0 - 0x00ED)
-// Estos datos siguientes son los datos que se pueden personalizar en cada perfil (Excepto S-INI)
+// Estos datos siguientes son los datos que se pueden personalizar en cada perfil
 // ================================================================================================
 
 
@@ -147,41 +147,6 @@ uint8_t M6 = 6;
 uint8_t M7 = 7;
 uint8_t M8 = 8;
 uint8_t M9 = 9;
-
-
-static const uint16_t dirVoltajeObjetivoM0;          // V-SET       R/W 2  Decimales
-uint16_t voltajeObjetivo = 0x0050 + (M0 * 0x0010)    // Perfil rápido e.g., 10.50V
-
-* Corregir lo siguiente:
-
-
-uint16_t corrienteObjetivo; // I-SET       R/W 3 (0x0051)  // Perfil rápido e.g., 35.986A
-
-
-uint16_t proteccionSubtension;       // S-LVP       R/W 2 (0x0052)  // e.g., 10.50V
-uint16_t proteccionSobretension;     // S-OVP       R/W 2 (0x0053)  // e.g., 14.60V
-uint16_t proteccionSobrecorriente;   // S-OCP       R/W 3 (0x0054)  // e.g., 35.986A
-
-uint16_t protecciónSobrepotencia;    // S-OPP       R/W 1 (0x0055)  // e.g., 276.6W
-
-uint16_t LIMITE_TIEMPO_H;         // S-OHP_H     R/W 0 (0x0056)  // Horas
-uint16_t LIMITE_TIEMPO_M;         // S-OHP_M     R/W 0 (0x0057)  // Minutos
-
-
-uint16_t CONTADOR_AH_BAJO;        // S-OAH_L     R/W 0 (0x0058)  // Parte baja AH
-uint16_t CONTADOR_AH_ALTO;        // S-OAH_H     R/W 0 (0x0059)  // Parte alta AH
-uint32_t CONTADOR_AH;             // CONTADOR_AH = (CONTADOR_AH_ALTO << 16) | CONTADOR_AH_BAJO // mAh
-
-
-uint16_t CONTADOR_WH_BAJO;        // S-OWH_L     R/W 0 (0x005A)  // ¡OJO! Unidad = 10 mWh
-uint16_t CONTADOR_WH_ALTO;        // S-OWH_H     R/W 0 (0x005B)  // convertimos a mWh
-uint32_t contadorWh;              // contadorWh = (CONTADOR_WH_ALTO << 16) | CONTADOR_WH_BAJO
-uint64_t CONTADOR_WH;             // CONTADOR_WH = contadorWh * 10 // Si para transmitir dividen por 10
-                                                                  // previsto desvordamiento con uint32_t
-
-
-uint16_t TEMP_MAX_INTERNA;        // S-OTP       R/W 0 (0x005C)  // e.g., 85°C
-uint16_t SALIDA_INICIO;           // S-INI       R/W 0 (0x005D)  // 0=OFF, 1=ON al energizar
 
 
 
