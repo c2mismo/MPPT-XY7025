@@ -19,6 +19,7 @@
 !.git
 !.gitignore
 !.kilocode/*
+!.kilocodemodes
 
 # Todos los archivos que comienzan con "."
 .*/
