@@ -124,6 +124,31 @@ Todos los formatos siguen la especificación del fabricante:
 - Compatible con cualquier placa Arduino que soporte SoftwareSerial
 - Requiere al menos 2KB de RAM disponible
 
+## Actualizaciones Recientes
+
+### Nuevo Comando: Lectura de Registro Específico (Comando 'l')
+Se ha añadido un nuevo comando al sketch principal que permite leer cualquier registro específico del XY7025:
+
+**Uso**: Presionar 'l' en el monitor serial
+**Funcionalidad**:
+- Solicita al usuario la dirección del registro en formato hexadecimal (4 dígitos)
+- Valida el rango de dirección (0x0000-0x00ED)
+- Lee y muestra el valor del registro
+- Proporciona interpretación adicional para registros conocidos
+- Muestra el valor en diferentes formatos (decimal, hexadecimal, binario)
+
+**Registros soportados con interpretación especial**:
+- Voltajes y corrientes: Conversión automática con decimales
+- Temperaturas: Conversión con 1 decimal
+- Estados binarios: Interpretación como ACTIVA/INACTIVA
+- Modelos y versiones: Visualización directa
+
+**Ejemplos de uso**:
+- `0002` → Lee voltaje de salida actual
+- `0012` → Lee estado de salida (ON/OFF)
+- `0018` → Lee dirección esclavo actual
+- `000D` → Lee temperatura interna
+
 ## Próximas Mejoras Sugeridas
 
 1. **Optimización de memoria**: Usar PROGMEM para tablas de conversión
