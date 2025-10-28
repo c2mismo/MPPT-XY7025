@@ -13,7 +13,7 @@ XY7025_Modbus::XY7025_Modbus(SoftwareSerial& serial, uint8_t address) {
 bool XY7025_Modbus::begin(uint32_t baudRate) {
     serial->begin(baudRate);
     modbus.begin(slaveAddress, *serial);
-    modbus.setTimeout(timeout);
+    // Nota: ModbusMaster no tiene método setTimeout, usaremos delay entre operaciones
     
     if (debugMode) {
         Serial.println(F("XY7025_Modbus: Inicializado con éxito"));
@@ -24,7 +24,7 @@ bool XY7025_Modbus::begin(uint32_t baudRate) {
 // Configurar timeout
 void XY7025_Modbus::setTimeout(uint16_t timeout) {
     this->timeout = timeout;
-    modbus.setTimeout(timeout);
+    // Nota: ModbusMaster no tiene método setTimeout
 }
 
 // Configurar reintentos
@@ -187,25 +187,25 @@ bool XY7025_Modbus::writeRegister(uint16_t address, uint16_t value) {
 
 // Escribir múltiples registros
 bool XY7025_Modbus::writeMultipleRegisters(uint16_t address, uint16_t* values, uint8_t count) {
-    uint8_t result = modbus.writeMultipleRegisters(address, values, count);
-    
-    if (result == modbus.ku8MBSuccess) {
-        if (debugMode) {
-            Serial.print(F("XY7025_Modbus: "));
-            Serial.print((int)count);
-            Serial.print(F(" registros escritos desde 0x"));
-            Serial.println(address, HEX);
+    // ModbusMaster no soporta escritura múltiple de registros con la firma esperada
+    // Vamos a escribir los valores uno por uno
+    for (uint8_t i = 0; i < count; i++) {
+        if (!writeRegister(address + i, values[i])) {
+            if (debugMode) {
+                Serial.print(F("XY7025_Modbus: Error en escritura múltiple, registro "));
+                Serial.println(address + i);
+            }
+            return false;
         }
-        return true;
-    } else {
-        if (debugMode) {
-            Serial.print(F("XY7025_Modbus: Error escribiendo múltiples registros desde 0x"));
-            Serial.print(address, HEX);
-            Serial.print(F(": 0x"));
-            Serial.println(result, HEX);
-        }
-        return false;
     }
+    
+    if (debugMode) {
+        Serial.print(F("XY7025_Modbus: "));
+        Serial.print((int)count);
+        Serial.print(F(" registros escritos desde 0x"));
+        Serial.println(address, HEX);
+    }
+    return true;
 }
 
 // Probar dirección de esclavo
@@ -395,5 +395,33 @@ String XY7025_Modbus::getProtectionDescription(uint8_t status) {
             return F("Temperatura externa");
         default:
             return F("Desconocido");
+        }
     }
-}
+    
+    // Funciones de lectura de registros específicos
+    uint16_t XY7025_Modbus::readRegister(uint16_t address) {
+        if (readHoldingRegisters(address, 1)) {
+            return getResponseBuffer(0);
+        }
+        return XY7025_ERROR_UINT16; // 0xFFFF indica error
+    }
+    
+    uint16_t XY7025_Modbus::readModel() {
+        return readRegister(XY7025_MODEL);
+    }
+    
+    uint16_t XY7025_Modbus::readVersion() {
+        return readRegister(XY7025_VERSION);
+    }
+    
+    uint16_t XY7025_Modbus::readBaudrate() {
+        return readRegister(XY7025_BAUDRATE_L);
+    }
+    
+    uint16_t XY7025_Modbus::readOutputState() {
+        return readRegister(XY7025_ONOFF);
+    }
+    
+    uint16_t XY7025_Modbus::readChargeMode() {
+        return readRegister(XY7025_CVCC);
+    }
