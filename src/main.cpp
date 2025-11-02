@@ -359,18 +359,184 @@ void readBasicValues() {
 
 void writeRegisterMenu() {
     Serial.println(F("\n=== ESCRITURA EN REGISTRO ==="));
-    Serial.println(F("Formato: w <direccion_hex> <valor_decimal>"));
-    Serial.println(F("Ejemplos:"));
-    Serial.println(F("  w 0 2400    -> Establecer voltaje a 24.00V"));
-    Serial.println(F("  w 1 5000    -> Establecer corriente a 5.000A"));
-    Serial.println(F("  w 12 1      -> Activar salida"));
-    Serial.println(F("  w 12 0      -> Desactivar salida"));
     Serial.println(F("Registros comunes:"));
     Serial.println(F("  0x0000: V-SET (voltaje, 2 decimales)"));
     Serial.println(F("  0x0001: I-SET (corriente, 3 decimales)"));
     Serial.println(F("  0x0012: ONOFF (1=activar, 0=desactivar)"));
     Serial.println(F("  0x0018: SLAVE-ADD (dirección esclavo)"));
-    Serial.println(F("Ingresa comando (w para mostrar este menú):"));
+    Serial.println(F("Ingresa 4 dígitos hexadecimales para la dirección (ej: 0000) o 'q' para cancelar:"));
+    
+    // Esperar entrada de dirección
+    while (!Serial.available()) {
+        delay(100);
+    }
+    
+    String input = Serial.readStringUntil('\n');
+    input.trim();
+    
+    // Verificar si el usuario quiere cancelar
+    if (input == "q" || input == "Q") {
+        Serial.println(F("Operación cancelada"));
+        return;
+    }
+    
+    // Validar longitud de entrada para dirección
+    if (input.length() != 4) {
+        Serial.println(F("✗ Error: Debes ingresar exactamente 4 dígitos hexadecimales"));
+        return;
+    }
+    
+    // Convertir string hexadecimal a uint16_t para la dirección
+    char* endptr;
+    uint16_t regAddress = strtol(input.c_str(), &endptr, 16);
+    
+    // Verificar que la conversión fue exitosa
+    if (*endptr != '\0') {
+        Serial.println(F("✗ Error: Formato hexadecimal inválido para dirección"));
+        return;
+    }
+    
+    // Validar rango de dirección
+    if (regAddress > 0x00ED) {
+        Serial.print(F("✗ Error: Dirección 0x"));
+        if (regAddress < 0x1000) Serial.print("0");
+        if (regAddress < 0x100) Serial.print("0");
+        if (regAddress < 0x10) Serial.print("0");
+        Serial.print(regAddress, HEX);
+        Serial.println(F(" fuera de rango (máximo 0x00ED)"));
+        return;
+    }
+    
+    Serial.print(F("Dirección seleccionada: 0x"));
+    if (regAddress < 0x1000) Serial.print("0");
+    if (regAddress < 0x100) Serial.print("0");
+    if (regAddress < 0x10) Serial.print("0");
+    Serial.println(regAddress, HEX);
+    
+    // Solicitar el valor a escribir
+    Serial.println(F("Ingresa el valor en hexadecimal (1-4 dígitos, ej: 0A, 00FF, 1234) o 'q' para cancelar:"));
+    
+    // Esperar entrada de valor
+    while (!Serial.available()) {
+        delay(100);
+    }
+    
+    String valueInput = Serial.readStringUntil('\n');
+    valueInput.trim();
+    
+    // Verificar si el usuario quiere cancelar
+    if (valueInput == "q" || valueInput == "Q") {
+        Serial.println(F("Operación cancelada"));
+        return;
+    }
+    
+    // Validar longitud de entrada para valor (1-4 dígitos hex)
+    if (valueInput.length() < 1 || valueInput.length() > 4) {
+        Serial.println(F("✗ Error: Debes ingresar entre 1 y 4 dígitos hexadecimales"));
+        return;
+    }
+    
+    // Convertir string hexadecimal a uint16_t para el valor
+    uint16_t regValue = strtol(valueInput.c_str(), &endptr, 16);
+    
+    // Verificar que la conversión fue exitosa
+    if (*endptr != '\0') {
+        Serial.println(F("✗ Error: Formato hexadecimal inválido para valor"));
+        return;
+    }
+    
+    Serial.print(F("Valor a escribir: 0x"));
+    if (regValue < 0x1000) Serial.print("0");
+    if (regValue < 0x100) Serial.print("0");
+    if (regValue < 0x10) Serial.print("0");
+    Serial.print(regValue, HEX);
+    Serial.print(F(" ("));
+    Serial.print(regValue);
+    Serial.println(F(" decimal)"));
+    
+    // Confirmar la operación
+    Serial.println(F("¿Confirmar escritura? (s/n):"));
+    
+    // Esperar confirmación
+    while (!Serial.available()) {
+        delay(100);
+    }
+    
+    char confirm = Serial.read();
+    // Limpiar el resto del buffer
+    while (Serial.available()) {
+        Serial.read();
+    }
+    
+    if (confirm != 's' && confirm != 'S') {
+        Serial.println(F("Operación cancelada"));
+        return;
+    }
+    
+    Serial.println(F("Escribiendo en el dispositivo..."));
+    
+    // Realizar la escritura usando la librería
+    bool success = mppt.writeRegister(regAddress, regValue);
+    
+    if (success) {
+        Serial.println(F("✓ Escritura exitosa"));
+        
+        // Verificar el valor escrito
+        Serial.println(F("Verificando el valor escrito..."));
+        uint16_t readValue = mppt.readRegister(regAddress);
+        
+        if (readValue != 0xFFFF) {
+            if (readValue == regValue) {
+                Serial.println(F("✓ Verificación exitosa: el valor coincide"));
+            } else {
+                Serial.print(F("⚠ Advertencia: el valor leído (0x"));
+                if (readValue < 0x1000) Serial.print("0");
+                if (readValue < 0x100) Serial.print("0");
+                if (readValue < 0x10) Serial.print("0");
+                Serial.print(readValue, HEX);
+                Serial.print(F(" = "));
+                Serial.print(readValue);
+                Serial.println(F(") no coincide con el valor escrito"));
+                Serial.println(F("Esto puede ser normal debido a límites internos del dispositivo"));
+            }
+        } else {
+            Serial.println(F("⚠ No se pudo verificar el valor (error de lectura)"));
+        }
+        
+        // Mostrar interpretación adicional para registros conocidos
+        switch (regAddress) {
+            case XY7025_V_SET:
+                Serial.print(F("  → Voltaje configurado: "));
+                Serial.print(regValue / 100.0);
+                Serial.println(F("V"));
+                break;
+            case XY7025_I_SET:
+                Serial.print(F("  → Corriente configurada: "));
+                Serial.print(regValue / 1000.0);
+                Serial.println(F("A"));
+                break;
+            case XY7025_ONOFF:
+                Serial.print(F("  → Estado de salida: "));
+                Serial.println(regValue ? F("ACTIVA") : F("INACTIVA"));
+                break;
+            case XY7025_SLAVE_ADD:
+                Serial.print(F("  → Nueva dirección esclavo: "));
+                Serial.println(regValue);
+                if (regValue != currentSlaveAddress) {
+                    Serial.println(F("  → La dirección del esclavo ha cambiado"));
+                    Serial.println(F("  → Reinicia el dispositivo para aplicar cambios"));
+                }
+                break;
+        }
+        
+    } else {
+        Serial.println(F("✗ Error al escribir el registro"));
+        Serial.println(F("Posibles causas:"));
+        Serial.println(F("- El dispositivo está bloqueado"));
+        Serial.println(F("- El valor está fuera de rango"));
+        Serial.println(F("- Error de comunicación Modbus"));
+        Serial.println(F("- El registro es de solo lectura"));
+    }
 }
 
 void testWriteOperation() {

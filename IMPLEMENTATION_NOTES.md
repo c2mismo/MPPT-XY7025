@@ -149,6 +149,43 @@ Se ha añadido un nuevo comando al sketch principal que permite leer cualquier r
 - `0018` → Lee dirección esclavo actual
 - `000D` → Lee temperatura interna
 
+### Nuevo Comando: Escritura de Registro (Comando 'w')
+Se ha implementado completamente el comando de escritura que permite escribir valores en cualquier registro del XY7025:
+
+**Uso**: Presionar 'w' en el monitor serial
+**Funcionalidad**:
+- Solicita al usuario la dirección del registro en formato hexadecimal (4 dígitos)
+- Solicita el valor a escribir en formato hexadecimal (1-4 dígitos)
+- Permite cancelar la operación en cualquier momento con 'q'
+- Confirma la operación antes de ejecutarla
+- Verifica el valor escrito después de la operación
+- Proporciona interpretación adicional para registros conocidos
+
+**Características de seguridad**:
+- Validación de formato hexadecimal para dirección y valor
+- Validación de rango de dirección (0x0000-0x00ED)
+- Confirmación del usuario antes de escribir
+- Verificación post-escritura para confirmar éxito
+- Opción de cancelar en cualquier momento
+
+**Registros soportados con interpretación especial**:
+- `0x0000` (V-SET): Voltaje configurado (conversión a 2 decimales)
+- `0x0001` (I-SET): Corriente configurada (conversión a 3 decimales)
+- `0x0012` (ONOFF): Estado de salida (ACTIVA/INACTIVA)
+- `0x0018` (SLAVE-ADD): Dirección esclavo (con advertencia si cambia)
+
+**Ejemplos de uso**:
+- Dirección: `0000`, Valor: `0FA0` → Establece voltaje a 40.00V
+- Dirección: `0001`, Valor: `1388` → Establece corriente a 5.000A
+- Dirección: `0012`, Valor: `0001` → Activa la salida
+- Dirección: `0012`, Valor: `0000` → Desactiva la salida
+
+**Mensajes de error claros**:
+- Formato hexadecimal inválido
+- Dirección fuera de rango
+- Error de comunicación Modbus
+- Dispositivo bloqueado o valor fuera de rango
+
 ## Próximas Mejoras Sugeridas
 
 1. **Optimización de memoria**: Usar PROGMEM para tablas de conversión

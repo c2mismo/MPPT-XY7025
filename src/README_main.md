@@ -22,9 +22,10 @@ Sketch completo para probar la librería XY7025_Modbus con el dispositivo MPPT X
 - Exploración interactiva de registros desconocidos
 
 ### 4. Escritura de Valores
-- Permite escribir valores específicos en registros
-- Test interactivo para cambiar voltaje y verificar en pantalla física
+- **Comando 'w'**: Escritura interactiva de registros con solicitud de dirección y valor
+- **Comando 't'**: Test interactivo para cambiar voltaje y verificar en pantalla física
 - Función de restauración automática de valores originales
+- Verificación post-escritura para confirmar éxito de la operación
 
 ## Conexiones de Hardware
 
@@ -52,7 +53,7 @@ GND           |    GND
 - `l` - Leer registro específico por dirección hexadecimal
 
 ### Escritura de Datos
-- `w` - Mostrar menú de escritura de registros
+- `w` - Escritura interactiva de registros (solicita dirección y valor en hexadecimal)
 - `t` - Test de escritura (cambia voltaje y espera confirmación visual)
 
 ## Uso con Screen para Volcado de Datos
@@ -169,6 +170,33 @@ Los datos se presentan con los siguientes formatos:
 2. Confirmar que la dirección esté en el rango 0x0000-0x00ED
 3. Usar letras minúsculas para 'q' si se desea cancelar
 4. Algunos registros pueden no estar implementados en el hardware
+
+### Uso del Comando 'w' (Escritura de Registros)
+
+**Proceso paso a paso:**
+1. Presionar 'w' en el monitor serial
+2. Ingresar dirección del registro (4 dígitos hexadecimales) o 'q' para cancelar
+3. Ingresar valor a escribir (1-4 dígitos hexadecimales) o 'q' para cancelar
+4. Confirmar la operación con 's' (si) o cualquier otra tecla para cancelar
+5. El sistema verificará automáticamente el valor escrito
+
+**Ejemplos prácticos:**
+- **Establecer voltaje a 24.00V**: Dirección: `0000`, Valor: `0960`
+- **Establecer corriente a 5.000A**: Dirección: `0001`, Valor: `1388`
+- **Activar salida**: Dirección: `0012`, Valor: `0001`
+- **Desactivar salida**: Dirección: `0012`, Valor: `0000`
+
+**Registros comunes con interpretación especial:**
+- `0x0000` (V-SET): Voltaje configurado (valor/100 = voltaje real)
+- `0x0001` (I-SET): Corriente configurada (valor/1000 = corriente real)
+- `0x0012` (ONOFF): Control de salida (1=activar, 0=desactivar)
+- `0x0018` (SLAVE-ADD): Dirección esclavo (cambio requiere reinicio)
+
+**Mensajes de error comunes:**
+- "Formato hexadecimal inválido": Verificar que solo se usen caracteres 0-9, A-F
+- "Dirección fuera de rango": La dirección debe estar entre 0x0000 y 0x00ED
+- "Error al escribir el registro": El dispositivo puede estar bloqueado o el valor fuera de rango
+- "El valor no coincide": El dispositivo puede haber ajustado el valor a límites internos
 
 ## Validación de la Documentación
 
