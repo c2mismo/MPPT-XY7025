@@ -30,13 +30,15 @@
 #include <SoftwareSerial.h>
 #include <XY7025_Modbus.h>
 
-// Configuración de pines y comunicación
-SoftwareSerial mpptSerial(2, 3); // RX, TX
-XY7025_Modbus mppt(mpptSerial, 5); // Dirección por defecto: 1
-
 // Variables globales
 bool debugMode = true;
+uint8_t modbus1rx = 2; // Rx debe ir conectado el Rx de Modbus
+uint8_t modbus1tx = 3; // Tx debe ir conectado el Tx de Modbus
 uint8_t currentSlaveAddress = 5;
+
+// Configuración de pines y comunicación
+SoftwareSerial mpptSerial(modbus1rx, modbus1tx); // RX, TX
+XY7025_Modbus mppt(mpptSerial, currentSlaveAddress); // Usar variable para dirección
 
 // Prototipos de funciones
 void printHelp();
@@ -188,7 +190,7 @@ void verifySlaveAddress() {
     } else {
         Serial.println(F("✗ SIN RESPUESTA"));
         Serial.println(F("Sugerencias:"));
-        Serial.println(F("- Verifica conexiones (D2->TX, D3->RX, GND)"));
+        Serial.println(F("- Verifica conexiones (D2=Rx->Rx(Modbus), D3=Tx->Tx(Modbus), GND)"));
         Serial.println(F("- Prueba con comando 's' para buscar dispositivos"));
         Serial.println(F("- Verifica que el XY7025 esté encendido"));
     }

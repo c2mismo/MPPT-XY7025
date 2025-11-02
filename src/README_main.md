@@ -15,7 +15,13 @@ Sketch completo para probar la librería XY7025_Modbus con el dispositivo MPPT X
 - Muestra voltaje, corriente, potencia, temperaturas, estado de protecciones
 - Volcado completo de datos para análisis con `screen -L`
 
-### 3. Escritura de Valores
+### 3. Lectura de Registro Específico
+- Lee cualquier registro individual por dirección hexadecimal
+- Interpretación automática para registros conocidos (voltajes, corrientes, temperaturas)
+- Visualización multi-formato: decimal, hexadecimal y binario
+- Exploración interactiva de registros desconocidos
+
+### 4. Escritura de Valores
 - Permite escribir valores específicos en registros
 - Test interactivo para cambiar voltaje y verificar en pantalla física
 - Función de restauración automática de valores originales
@@ -43,6 +49,7 @@ GND           |    GND
 ### Lectura de Datos
 - `r` - Leer y mostrar TODOS los registros del dispositivo
 - `v` - Leer valores básicos (Voltaje, Corriente, Potencia, Temperaturas)
+- `l` - Leer registro específico por dirección hexadecimal
 
 ### Escritura de Datos
 - `w` - Mostrar menú de escritura de registros
@@ -88,6 +95,24 @@ Dirección | Estado
     2    | ---
     3    | ---
 ```
+
+### 4. Lectura de Registro Específico
+```
+=== LECTURA DE REGISTRO ESPECÍFICO ===
+Ingresa la dirección del registro en hexadecimal (0x0000-0x00ED)
+Ingresa 4 dígitos hexadecimales (ej: 0002) o 'q' para cancelar:
+0002
+Leyendo registro 0x0002...
+✓ Valor leído: 2415
+ → Voltaje de salida: 24.15V
+```
+
+**Ejemplos de registros comunes:**
+- `0000` → Voltaje configurado
+- `0002` → Voltaje de salida actual
+- `0003` → Corriente de salida actual
+- `0012` → Estado de salida (ON/OFF)
+- `0018` → Dirección esclavo actual
 
 ### 3. Lectura Completa de Registros
 ```
@@ -139,6 +164,12 @@ Los datos se presentan con los siguientes formatos:
 3. Verificar estado de protecciones
 4. Intentar con valores más conservadores
 
+### Errores en Lectura de Registro Específico
+1. Verificar que se ingresen exactamente 4 dígitos hexadecimales
+2. Confirmar que la dirección esté en el rango 0x0000-0x00ED
+3. Usar letras minúsculas para 'q' si se desea cancelar
+4. Algunos registros pueden no estar implementados en el hardware
+
 ## Validación de la Documentación
 
 Este sketch permite validar la documentación del XY7025:
@@ -159,3 +190,4 @@ Este sketch permite validar la documentación del XY7025:
 - [`lib/XY7025_Modbus/`](lib/XY7025_Modbus/) - Librería Modbus
 - [`ARCHITECTURE.md`](ARCHITECTURE.md) - Documentación técnica
 - [`Documentation/`](Documentation/) - Documentación del protocolo
+- [`IMPLEMENTATION_NOTES.md`](IMPLEMENTATION_NOTES.md) - Notas de implementación
