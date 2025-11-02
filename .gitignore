@@ -29,6 +29,7 @@
 *~
 
 # OTHERS
+screenlog.*
 *.lnk
 Thumbs*
 *encryptable
