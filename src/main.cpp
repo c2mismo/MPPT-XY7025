@@ -198,12 +198,12 @@ void verifySlaveAddress() {
 
 void scanSlaveAddresses() {
     Serial.println(F("\n=== Búsqueda de Dispositivos Modbus ==="));
-    Serial.println(F("Escaneando direcciones 1-20 (primeras 20 por velocidad)"));
+    Serial.println(F("Escaneando direcciones 1-247"));
     Serial.println(F("Dirección | Estado"));
     Serial.println(F("---------|-------"));
     
     bool foundAny = false;
-    for (int addr = 1; addr <= 20; addr++) {
+    for (int addr = 1; addr <= 247; addr++) {
         Serial.print(F("    "));
         if (addr < 10) Serial.print(' ');
         Serial.print(addr);
