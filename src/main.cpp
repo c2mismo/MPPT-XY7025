@@ -49,7 +49,6 @@ void readBasicValues();
 void writeRegisterMenu();
 void testWriteOperation();
 void readSpecificRegister();
-void waitForUserInput();
 
 void setup() {
     // Inicializar puerto serial para debug/monitor
@@ -195,8 +194,6 @@ void verifySlaveAddress() {
         Serial.println(F("- Prueba con comando 's' para buscar dispositivos"));
         Serial.println(F("- Verifica que el XY7025 esté encendido"));
     }
-    
-    waitForUserInput();
 }
 
 void scanSlaveAddresses() {
@@ -236,8 +233,6 @@ void scanSlaveAddresses() {
         Serial.println(F("- Asegúrate de que el XY7025 esté encendido"));
         Serial.println(F("- Prueba con un rango mayor (modificar código)"));
     }
-    
-    waitForUserInput();
 }
 
 void readAllRegisters() {
@@ -296,8 +291,6 @@ void readAllRegisters() {
         Serial.print(F("Modo carga (CVCC): "));
         Serial.println(chargeMode ? F("CC (Corriente Constante)") : F("CV (Voltaje Constante)"));
     }
-    
-    waitForUserInput();
 }
 
 void readBasicValues() {
@@ -362,8 +355,6 @@ void readBasicValues() {
     uint8_t protectStatus = mppt.getProtectionStatus();
     Serial.print(F("Estado de protección: "));
     Serial.println(mppt.getProtectionDescription(protectStatus));
-    
-    waitForUserInput();
 }
 
 void writeRegisterMenu() {
@@ -546,8 +537,6 @@ void writeRegisterMenu() {
         Serial.println(F("- Error de comunicación Modbus"));
         Serial.println(F("- El registro es de solo lectura"));
     }
-    
-    waitForUserInput();
 }
 
 void testWriteOperation() {
@@ -620,8 +609,6 @@ void testWriteOperation() {
         Serial.println(F("- El valor está fuera de rango"));
         Serial.println(F("- Error de comunicación"));
     }
-    
-    waitForUserInput();
 }
 
 void readSpecificRegister() {
@@ -760,19 +747,5 @@ void readSpecificRegister() {
         Serial.println(F("- Dirección de registro inválida"));
         Serial.println(F("- Error de comunicación Modbus"));
         Serial.println(F("- El dispositivo no responde"));
-    }
-    
-    waitForUserInput();
-}
-
-void waitForUserInput() {
-    Serial.println(F("\nPresiona cualquier tecla para volver al menú..."));
-    // Esperar a que haya datos disponibles
-    while (!Serial.available()) {
-        delay(100);
-    }
-    // Limpiar cualquier carácter recibido
-    while (Serial.available()) {
-        Serial.read();
     }
 }
