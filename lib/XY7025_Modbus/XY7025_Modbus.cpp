@@ -219,7 +219,8 @@ bool XY7025_Modbus::probeSlaveAddress(uint8_t address) {
     
     // Intentar leer un registro conocido (voltaje de salida)
     // Si hay algún error crítico, success permanecerá en false
-    success = readHoldingRegisters(XY7025_VOUT, 1);
+    uint16_t vout = readRegister(XY7025_VOUT);
+    success = (vout != XY7025_ERROR_UINT16);
     
     // Restaurar dirección original SIEMPRE, incluso si hay error
     // Esto previene la corrupción de estado del objeto
