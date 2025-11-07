@@ -13,6 +13,7 @@
   Fecha: 2025-11-06
 */
 
+#include <Arduino.h>
 #include <XY7025_Modbus.h>
 #include <SoftwareSerial.h>
 
