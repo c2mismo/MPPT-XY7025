@@ -182,7 +182,7 @@ private:
     uint8_t retries;
     bool debugMode;
     
-    // Métodos privados auxiliares
+    // Métodos auxiliares (públicos para permitir acceso directo desde main.cpp)
     bool readHoldingRegisters(uint16_t address, uint8_t count);
     uint16_t getResponseBuffer(uint8_t index);
     
@@ -222,6 +222,14 @@ public:
     bool setOutputPower(float power);
     bool enableOutput(bool enable);
     bool setProfile(uint8_t profile);
+    
+    // Funciones de lectura de registros específicos
+    uint16_t readRegister(uint16_t address);
+    uint16_t readModel();
+    uint16_t readVersion();
+    uint16_t readBaudrate();
+    uint16_t readOutputState();
+    uint16_t readChargeMode();
     
     // Funciones de estado y protección
     uint8_t getProtectionStatus();
