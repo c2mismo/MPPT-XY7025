@@ -182,7 +182,7 @@ private:
     uint8_t retries;
     bool debugMode;
     
-    // Métodos auxiliares (públicos para permitir acceso directo desde main.cpp)
+    // Métodos auxiliares - públicos para permitir acceso externo
     bool readHoldingRegisters(uint16_t address, uint8_t count);
     uint16_t getResponseBuffer(uint8_t index);
     
