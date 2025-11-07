@@ -47,6 +47,14 @@ Se añadió `waitForUserInput()` al final de las siguientes funciones:
 
 ## Archivos Modificados
 - `src/main.cpp` - Implementación completa de la mejora
+- `examples/XY7025_Address_Finder/XY7025_Address_Finder.cpp` - Formato de menú mejorado
+
+### Mejora Adicional del Formato de Menú
+En el archivo de ejemplo se simplificó la presentación del menú:
+- **Antes**: `1. [a] Verificar conexión actual`
+- **Ahora**: `[a] Verificar conexión actual`
+
+Esta mejora da un aspecto más limpio y conciso al menú sin numeración innecesaria.
 
 ## Nota para Compilación
 Para usar este código, asegúrese de que el `platformio.ini` apunte a `src_dir = src` en lugar de `src_dir = examples/XY7025_Address_Finder`.

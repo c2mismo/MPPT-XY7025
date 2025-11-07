@@ -303,16 +303,16 @@ void displayMenu() {
     
     Serial.println();
     printFromPROGMEM(MSG_OPTIONS);
-    Serial.println(F("1. [a] Verificar conexión actual"));
-    Serial.println(F("2. [s] Buscar dirección Slave (1-247)"));
-    Serial.println(F("3. [b] Buscar Baudrate completo (proceso largo)"));
-    Serial.println(F("4. [w] Escribir Slave en XY7025"));
-    Serial.println(F("5. [r] Escribir Baudrate en XY7025"));
-    Serial.println(F("6. [m] Cambiar Slave local (Arduino)"));
-    Serial.println(F("7. [n] Cambiar Baudrate local (Arduino)"));
-    Serial.println(F("8. [h] Ayuda"));
-    Serial.println(F("9. [q] Salir"));
-    Serial.println(F("10. [d] Toggle Debug Mode"));
+    Serial.println(F("[a] Verificar conexión actual"));
+    Serial.println(F("[s] Buscar dirección Slave (1-247)"));
+    Serial.println(F("[b] Buscar Baudrate completo (proceso largo)"));
+    Serial.println(F("[w] Escribir Slave en XY7025"));
+    Serial.println(F("[r] Escribir Baudrate en XY7025"));
+    Serial.println(F("[m] Cambiar Slave local (Arduino)"));
+    Serial.println(F("[n] Cambiar Baudrate local (Arduino)"));
+    Serial.println(F("[h] Ayuda"));
+    Serial.println(F("[q] Salir"));
+    Serial.println(F("[d] Toggle Debug Mode"));
     Serial.println();
     printFromPROGMEM(MSG_CMD_PROMPT);
 }
