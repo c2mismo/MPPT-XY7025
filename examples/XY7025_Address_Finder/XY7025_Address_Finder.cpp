@@ -96,6 +96,7 @@ const char ERROR_INVALID_INPUT_MSG[] PROGMEM = "Entrada inválida";
 const char ERROR_WRITE_FAIL[] PROGMEM = "✗ Error escribiendo en XY7025";
 const char ERROR_TIMEOUT_MSG[] PROGMEM = "✗ Tiempo de espera agotado";
 const char ERROR_CANCEL_MSG[] PROGMEM = "Operación cancelada";
+const char ERROR_EXIT_SRC[] PROGMEM = "Salida inesperada durante la busqueda";
 
 // Mensajes de éxito
 const char SUCCESS_WRITE[] PROGMEM = "✓ Escritura exitosa";
@@ -485,7 +486,7 @@ void searchSlaveAddress() {
     Serial.println(F(" bps"));
     
     searchCancelled = false;
-    uint8_t foundAddress = 0;
+    bool found = false;
     
     for (uint8_t addr = MIN_SLAVE_ADDRESS; addr <= MAX_SLAVE_ADDRESS && !searchCancelled; addr++) {
         printProgress(addr, MAX_SLAVE_ADDRESS, PSTR("Probando dirección"));
@@ -494,12 +495,13 @@ void searchSlaveAddress() {
         if (mppt.probeSlaveAddress(addr)) {
             // Verificar con lectura adicional
             if (testConnectionWithAddress(addr)) {
-                foundAddress = addr;
+                found = true;
+                currentSlaveAddress = addr;
                 Serial.println();
                 Serial.println(F("================================================"));
                 Serial.println(F("✓ DISPOSITIVO ENCONTRADO"));
                 Serial.print(F("  Dirección: "));
-                Serial.println(foundAddress);
+                Serial.println(addr);
                 Serial.print(F("  Baudrate: "));
                 Serial.print(getBaudrateValue(currentBaudrate));
                 Serial.println(F(" bps"));
@@ -522,25 +524,33 @@ void searchSlaveAddress() {
     
     if (searchCancelled) {
         Serial.println(F("\nBúsqueda cancelada por el usuario"));
-    } else if (foundAddress == 0) {
+    } else if (!found) {
         Serial.println(F("\n✗ No se encontró ningún dispositivo"));
         Serial.println(F("Sugerencias:"));
         Serial.println(F("  - Verificar que el XY7025 esté encendido"));
         Serial.println(F("  - Comprobar conexiones"));
         Serial.println(F("  - Intentar búsqueda de baudrate"));
-    } else {
-        // Actualizar configuración local
-        currentSlaveAddress = foundAddress;
-        mppt = XY7025_Modbus(mpptSerial, currentSlaveAddress);
-        mppt.begin(getBaudrateValue(currentBaudrate));
-        systemConnected = true;
-        systemState = STATE_CONNECTED;
+    } else if (found) {
+        // Inicializar objeto MPPT
+        XY7025_Modbus mppt(mpptSerial, currentSlaveAddress);
+        if (mppt.begin(getBaudrateValue(currentBaudrate))) {
+            delay(500);
+            printFromPROGMEM(MSG_MODBUS_OK);
+            systemConnected = true;
+            systemState = STATE_CONNECTED;
         
-        Serial.println(F("\n⚠️ ACCIÓN REQUERIDA:"));
-        Serial.println(F("Si desea GUARDAR esta dirección en el XY7025:"));
-        Serial.println(F("1. Use opción [w] del menú"));
-        Serial.println(F("2. Apague y encienda manualmente el XY7025 (botón físico - NO reinicio por software)"));
-        Serial.println(F("3. Verifique conexión con opción [a]"));
+            Serial.println(F("\n⚠️ ACCIÓN REQUERIDA:"));
+            Serial.println(F("Si desea GUARDAR esta dirección en el XY7025:"));
+            Serial.println(F("1. Use opción [w] del menú"));
+            Serial.println(F("2. Apague y encienda manualmente el XY7025 (botón físico - NO reinicio por software)"));
+            Serial.println(F("3. Verifique conexión con opción [a]"));
+        } else {
+            printFromPROGMEM(MSG_MODBUS_ERROR);
+            systemConnected = false;
+            systemState = STATE_ERROR;
+        }
+    } else {
+            printFromPROGMEM(ERROR_EXIT_SRC);
     }
 }
 
@@ -569,11 +579,9 @@ void searchBaudrateComplete() {
     }
     
     Serial.println(F("\nIniciando búsqueda exhaustiva..."));
+
     searchCancelled = false;
-    
     bool found = false;
-    uint8_t foundBaudrate = 0;
-    uint8_t foundAddress = 0;
     
     for (uint8_t baudIndex = 0; baudIndex < BAUDRATE_COUNT && !searchCancelled; baudIndex++) {
         Serial.print(F("\n--- Probando baudrate "));
@@ -599,8 +607,9 @@ void searchBaudrateComplete() {
             
             if (mppt.probeSlaveAddress(addr)) {
                 if (testConnectionWithAddressAndBaudrate(addr, getBaudrateValue(baudIndex))) {
-                    foundBaudrate = baudIndex;
-                    foundAddress = addr;
+                    // Actualizar configuración
+                    currentBaudrate = baudIndex;
+                    currentSlaveAddress = addr;
                     found = true;
                     break;
                 }
@@ -629,33 +638,40 @@ void searchBaudrateComplete() {
         Serial.println(F("  - XY7025 encendido y conectado"));
         Serial.println(F("  - Conexiones físicas correctas"));
         Serial.println(F("  - XY7025 funcionando correctamente"));
+    } else if (found) {
+        
+        // Inicializar objeto MPPT
+        XY7025_Modbus mppt(mpptSerial, currentSlaveAddress);
+        if (mppt.begin(getBaudrateValue(currentBaudrate))) {
+            delay(500);
+            printFromPROGMEM(MSG_MODBUS_OK);
+            systemConnected = true;
+            systemState = STATE_CONNECTED;
+        
+            Serial.println(F("\n================================================"));
+            Serial.println(F("✓ DISPOSITIVO ENCONTRADO"));
+            Serial.print(F("  Slave Address: "));
+            Serial.println(currentSlaveAddress);
+            Serial.print(F("  Baudrate: "));
+            Serial.print(getBaudrateValue(currentBaudrate));
+            Serial.print(F(" bps (índice "));
+            Serial.print(currentBaudrate);
+            Serial.println(F(")"));
+            Serial.println(F("================================================"));
+            
+            Serial.println(F("\n⚠️ CAMBIOS DETECTADOS:"));
+            Serial.println(F("Para que los cambios sean permanentes:"));
+            Serial.println(F("1. Opción [w]: Guardar dirección slave"));
+            Serial.println(F("2. Opción [r]: Guardar baudrate"));
+            Serial.println(F("3. REINICIO MANUAL del XY7025 (botón físico)"));
+            Serial.println(F("4. Verificar con opción [a]"));
+        } else {
+            printFromPROGMEM(MSG_MODBUS_ERROR);
+            systemConnected = false;
+            systemState = STATE_ERROR;
+        }
     } else {
-        // Actualizar configuración
-        currentBaudrate = foundBaudrate;
-        currentSlaveAddress = foundAddress;
-        
-        mppt = XY7025_Modbus(mpptSerial, currentSlaveAddress);
-        mppt.begin(getBaudrateValue(currentBaudrate));
-        systemConnected = true;
-        systemState = STATE_CONNECTED;
-        
-        Serial.println(F("\n================================================"));
-        Serial.println(F("✓ DISPOSITIVO ENCONTRADO"));
-        Serial.print(F("  Slave Address: "));
-        Serial.println(foundAddress);
-        Serial.print(F("  Baudrate: "));
-        Serial.print(getBaudrateValue(foundBaudrate));
-        Serial.print(F(" bps (índice "));
-        Serial.print(foundBaudrate);
-        Serial.println(F(")"));
-        Serial.println(F("================================================"));
-        
-        Serial.println(F("\n⚠️ CAMBIOS DETECTADOS:"));
-        Serial.println(F("Para que los cambios sean permanentes:"));
-        Serial.println(F("1. Opción [w]: Guardar dirección slave"));
-        Serial.println(F("2. Opción [r]: Guardar baudrate"));
-        Serial.println(F("3. REINICIO MANUAL del XY7025 (botón físico)"));
-        Serial.println(F("4. Verificar con opción [a]"));
+            printFromPROGMEM(ERROR_EXIT_SRC);
     }
 }
 
