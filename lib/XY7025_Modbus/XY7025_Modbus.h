@@ -188,7 +188,7 @@ private:
     
 public:
     // Constructor
-    XY7025_Modbus(SoftwareSerial& serial, uint8_t address = XY7025_DEFAULT_SLAVE_ADDRESS);
+    explicit XY7025_Modbus(SoftwareSerial& serial, uint8_t address = XY7025_DEFAULT_SLAVE_ADDRESS);
     
     // Configuración
     bool begin(uint32_t baudRate = 115200);

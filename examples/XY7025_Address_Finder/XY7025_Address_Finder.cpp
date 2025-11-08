@@ -61,7 +61,7 @@ const uint32_t BAUDRATES[] PROGMEM = {
     14400,   // 1
     19200,   // 2
     38400,   // 3
-    56000,   // 4
+    56000,   // 4 ¿ = 28800 ?
     57600,   // 5
     115200,  // 6 - Por defecto
     2400,    // 7
@@ -253,6 +253,9 @@ void loop() {
             case 'N':
                 changeLocalBaudrate();
                 break;
+            case 'I':
+                displayMenu();
+                break;
             case 'H':
                 showHelp();
                 break;
@@ -274,7 +277,6 @@ void loop() {
         
         Serial.println(F("\n--- Comando completado ---"));
         delay(500);
-        displayMenu();
     }
 }
 
@@ -310,6 +312,7 @@ void displayMenu() {
     Serial.println(F("[r] Escribir Baudrate en XY7025"));
     Serial.println(F("[m] Cambiar Slave local (Arduino)"));
     Serial.println(F("[n] Cambiar Baudrate local (Arduino)"));
+    Serial.println(F("[i] Información y opciones"));
     Serial.println(F("[h] Ayuda"));
     Serial.println(F("[q] Salir"));
     Serial.println(F("[d] Toggle Debug Mode"));
@@ -323,10 +326,13 @@ void printFromPROGMEM(const char* str) {
     Serial.println(buffer);
 }
 
+// Función comentada temporalmente - no se utiliza en el código actual
+/*
 void printConnectionStatus() {
     Serial.print(F("  Conexión: "));
     Serial.println(getConnectionStatusText());
 }
+*/
 
 void printProgress(uint8_t current, uint8_t total, const char* prefix) {
     char buffer[64];
@@ -900,7 +906,8 @@ void showHelp() {
     Serial.println(F("  [r] Escribir Baudrate: Guarda baudrate en registro 0x0019 del XY7025"));
     Serial.println(F("  [m] Cambiar Local: Cambia dirección solo en Arduino (no en XY7025)"));
     Serial.println(F("  [n] Cambiar Local: Cambia baudrate solo en Arduino (no en XY7025)"));
-    Serial.println(F("  [h] Ayuda: Muestra esta ayuda"));
+    Serial.println(F("  [i] Info: Muestra opciones e información básica"));
+    Serial.println(F("  [h] Ayuda: Muestra ayuda detallada"));
     Serial.println(F("  [q] Salir: Termina el programa"));
     Serial.println();
     Serial.println(F("IMPORTANTE:"));
@@ -918,6 +925,7 @@ void showHelp() {
 // FUNCIONES AUXILIARES
 //====================================================================
 
+
 uint32_t getBaudrateValue(uint8_t index) {
     if (index >= BAUDRATE_COUNT) return 9600; // Valor por defecto
     uint32_t value;
@@ -929,12 +937,15 @@ const char* getConnectionStatusText() {
     return systemConnected ? "OK" : "ERROR";
 }
 
+// Función comentada temporalmente - no se utiliza en el código actual
+/*
 const char* getBaudrateName(uint8_t index) {
     if (index >= BAUDRATE_COUNT) return "Desconocido";
     static char buffer[16];
-    snprintf(buffer, sizeof(buffer), "%lu bps", getBaudrateValue(index));
+    snprintf(buffer, sizeof(buffer), "%lu bps", (unsigned long)getBaudrateValue(index));
     return buffer;
 }
+*/
 
 ErrorCode waitForSerialResponse(char& response, uint16_t timeout) {
     unsigned long startTime = millis();
