@@ -316,7 +316,7 @@ void displayMenu() {
     Serial.println(F("[i] Información y opciones"));
     Serial.println(F("[h] Ayuda"));
     Serial.println(F("[q] Salir"));
-    Serial.println(F("[d] Toggle Debug Mode"));
+    Serial.println(F("[d] alternar modo Debugeo"));
     Serial.println();
     printFromPROGMEM(MSG_CMD_PROMPT);
 }
@@ -326,6 +326,23 @@ void printFromPROGMEM(const char* str) {
     strcpy_P(buffer, str);
     Serial.println(buffer);
 }
+
+/*
+Lectura de PROGMEM sin buffer:
+
+void printFromPROGMEM(const char* str) {
+    // Sin buffer - imprime carácter por carácter
+    for (uint8_t i = 0; ; i++) {
+        char c = pgm_read_byte(str + i);
+        if (c == 0) break;
+        Serial.print(c);
+    }
+    Serial.println();
+}
+
+*/
+
+
 
 // Función comentada temporalmente - no se utiliza en el código actual
 /*
