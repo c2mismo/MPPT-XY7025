@@ -172,11 +172,12 @@ void setup() {
     
     // Inicializar comunicación con baudrate por defecto
     uint32_t baudValue = getBaudrateValue(currentBaudrate);
-    mpptSerial.begin(baudValue);
-    delay(500);
+//    mpptSerial.begin(baudValue);
+//    delay(500);
     
     // Inicializar objeto MPPT
     if (mppt.begin(baudValue)) {
+        delay(500);
         printFromPROGMEM(MSG_MODBUS_OK);
     } else {
         printFromPROGMEM(MSG_MODBUS_ERROR);
@@ -924,10 +925,10 @@ void showHelp() {
 //====================================================================
 // FUNCIONES AUXILIARES
 //====================================================================
-
+// Obtener el valor numérico del baudrate desde el array almacenado en memoria de programa "PROGMEM"
 
 uint32_t getBaudrateValue(uint8_t index) {
-    if (index >= BAUDRATE_COUNT) return 9600; // Valor por defecto
+    if (index >= BAUDRATE_COUNT) return 115200; // Valor por defecto
     uint32_t value;
     memcpy_P(&value, &BAUDRATES[index], sizeof(uint32_t));
     return value;
