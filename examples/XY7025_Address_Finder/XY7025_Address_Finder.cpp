@@ -78,7 +78,7 @@ const char MSG_MODBUS_ERROR[] PROGMEM = "✗ Error inicializando Modbus";
 const char MSG_VERIFY[] PROGMEM = "\nVerificando conexión inicial...";
 const char MSG_CONNECTED[] PROGMEM = "✓ Conexión establecida con slave ";
 const char MSG_NO_RESPONSE[] PROGMEM = "✗ Sin respuesta del dispositivo";
-const char MSG_USE_MENU[] PROGMEM = "ℹ️ Use menú de búsqueda para encontrar el dispositivo";
+const char MSG_USE_MENU[] PROGMEM = "ℹ️ Pulsa la tecla [I] para ver el menú de búsqueda";
 const char MSG_READY[] PROGMEM = "\nConfigurador listo. Presione una tecla para continuar...";
 
 const char MSG_MENU_TITLE[] PROGMEM = "\n=== CONFIGURADOR XY7025 ===";
