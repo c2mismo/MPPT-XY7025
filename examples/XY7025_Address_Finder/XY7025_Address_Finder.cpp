@@ -174,8 +174,8 @@ void setup() {
     
     // Inicializar comunicación con baudrate por defecto
     uint32_t baudValue = getBaudrateValue(currentBaudrate);
-//    xy7025_serial.begin(baudValue);
-//    delay(500);
+    xy7025_serial.begin(baudValue);
+    delay(500);
     
     // Inicializar objeto MPPT
     if (xy7025_1.begin(baudValue)) {
