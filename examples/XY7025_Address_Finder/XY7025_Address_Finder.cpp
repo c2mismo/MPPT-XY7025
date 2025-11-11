@@ -37,7 +37,7 @@ const uint16_t RETRY_DELAY_MS = 500;
 
 // Objetos de comunicación
 SoftwareSerial xy7025_serial(MODBUS_RX, MODBUS_TX);
-XY7025_Modbus xy7025_s1(xy7025_serial, MIN_SLAVE_ADDRESS);
+XY7025_Modbus xy7025_1(xy7025_serial, MIN_SLAVE_ADDRESS);
 
 // Variables de estado
 SystemState systemState = STATE_INIT;
@@ -178,7 +178,7 @@ void setup() {
 //    delay(500);
     
     // Inicializar objeto MPPT
-    if (xy7025_s1.begin(baudValue)) {
+    if (xy7025_1.begin(baudValue)) {
         delay(500);
         printFromPROGMEM(MSG_MODBUS_OK);
     } else {
@@ -269,7 +269,7 @@ void loop() {
                 break;
             case 'D':
                 debugMode = !debugMode;
-                xy7025_s1.enableDebug(debugMode);
+                xy7025_1.enableDebug(debugMode);
                 Serial.print(F("Debug mode: "));
                 Serial.println(debugMode ? F("ON") : F("OFF"));
                 break;
@@ -382,7 +382,7 @@ bool testConnection() {
         Serial.println(F(" bps..."));
     }
     
-    uint16_t vout = xy7025_s1.readRegister(XY7025_VOUT);
+    uint16_t vout = xy7025_1.readRegister(XY7025_VOUT);
     bool success = (vout != XY7025_ERROR_UINT16);
     
     if (success) {
@@ -425,14 +425,14 @@ void verifyConnection() {
         Serial.println(F("Leyendo registros de configuración..."));
         
         // Leer dirección slave actual del dispositivo
-        uint16_t deviceSlave = xy7025_s1.readRegister(XY7025_SLAVE_ADD);
+        uint16_t deviceSlave = xy7025_1.readRegister(XY7025_SLAVE_ADD);
         if (deviceSlave != XY7025_ERROR_UINT16) {
             Serial.print(F("  Dirección Slave en dispositivo: "));
             Serial.println(deviceSlave);
         }
         
         // Leer baudrate actual del dispositivo  
-        uint16_t deviceBaudrate = xy7025_s1.readBaudrate();
+        uint16_t deviceBaudrate = xy7025_1.readBaudrate();
         if (deviceBaudrate != XY7025_ERROR_UINT16) {
             Serial.print(F("  Baudrate en dispositivo: "));
             Serial.print(deviceBaudrate);
@@ -440,7 +440,7 @@ void verifyConnection() {
         }
         
         // Leer voltaje de salida actual
-        uint16_t vout = xy7025_s1.readRegister(XY7025_VOUT);
+        uint16_t vout = xy7025_1.readRegister(XY7025_VOUT);
         if (vout != XY7025_ERROR_UINT16) {
             float voutReal = vout / 100.0;
             Serial.print(F("  Voltaje salida actual: "));
@@ -493,7 +493,7 @@ void searchSlaveAddress() {
         printProgress(addr, MAX_SLAVE_ADDRESS, PSTR("Probando dirección"));
         
         // Probar dirección
-        if (xy7025_s1.probeSlaveAddress(addr)) {
+        if (xy7025_1.probeSlaveAddress(addr)) {
             currentSlaveAddress = addr;
             found = true;
             // Verificar con lectura adicional
@@ -524,8 +524,8 @@ void searchSlaveAddress() {
         Serial.println(F("  - Intentar búsqueda de baudrate"));
     } else if (found) {
         // Inicializar objeto MPPT
-        XY7025_Modbus xy7025_s1(xy7025_serial, currentSlaveAddress);
-        if (xy7025_s1.begin(getBaudrateValue(currentBaudrate))) {
+        XY7025_Modbus xy7025_1(xy7025_serial, currentSlaveAddress);
+        if (xy7025_1.begin(getBaudrateValue(currentBaudrate))) {
             delay(500);
             printFromPROGMEM(MSG_MODBUS_OK);
             systemConnected = true;
@@ -604,7 +604,7 @@ void searchBaudrateComplete() {
         xy7025_serial.begin(getBaudrateValue(baudIndex));
         delay(200);
         // Reconfigurar modbusMaster
-        xy7025_s1.begin(getBaudrateValue(baudIndex));
+        xy7025_1.begin(getBaudrateValue(baudIndex));
         
         // Buscar slave en este baudrate
         for (uint8_t addr = MIN_SLAVE_ADDRESS; addr <= MAX_SLAVE_ADDRESS && !searchCancelled; addr++) {
@@ -613,7 +613,7 @@ void searchBaudrateComplete() {
                       PSTR("Baudrate %d - Probando slave"), baudIndex);
             printProgress(addr, MAX_SLAVE_ADDRESS, progressMsg);
             
-            if (xy7025_s1.probeSlaveAddress(addr)) {
+            if (xy7025_1.probeSlaveAddress(addr)) {
             // Actualizar configuración
                 currentBaudrate = baudIndex;
                 currentSlaveAddress = addr;
@@ -650,8 +650,8 @@ void searchBaudrateComplete() {
     } else if (found) {
         
         // Inicializar objeto MPPT
-        XY7025_Modbus xy7025_s1(xy7025_serial, currentSlaveAddress);
-        if (xy7025_s1.begin(getBaudrateValue(currentBaudrate))) {
+        XY7025_Modbus xy7025_1(xy7025_serial, currentSlaveAddress);
+        if (xy7025_1.begin(getBaudrateValue(currentBaudrate))) {
             delay(500);
             printFromPROGMEM(MSG_MODBUS_OK);
             systemConnected = true;
@@ -715,13 +715,13 @@ ErrorCode writeToXY7025(uint16_t registerAddr, uint16_t value, const char* regNa
     
     Serial.println(F("\nEscribiendo en XY7025..."));
     
-    bool success = xy7025_s1.writeRegister(registerAddr, value);
+    bool success = xy7025_1.writeRegister(registerAddr, value);
     
     if (success) {
         printFromPROGMEM(SUCCESS_WRITE);
         
         // Verificar escritura leyendo el registro
-        uint16_t readBack = xy7025_s1.readRegister(registerAddr);
+        uint16_t readBack = xy7025_1.readRegister(registerAddr);
         if (readBack == value) {
             printFromPROGMEM(SUCCESS_VERIFY);
         } else {
@@ -825,7 +825,7 @@ void changeLocalSlave() {
     
     // Actualizar configuración local
     currentSlaveAddress = (uint8_t)newAddress;
-    xy7025_s1 = XY7025_Modbus(xy7025_serial, currentSlaveAddress);
+    xy7025_1 = XY7025_Modbus(xy7025_serial, currentSlaveAddress);
     
     Serial.print(F("✓ Slave local actualizado a "));
     Serial.println(currentSlaveAddress);
@@ -897,7 +897,7 @@ void changeLocalBaudrate() {
     
     // Actualizar configuración local
     currentBaudrate = (uint8_t)newBaudrate;
-    xy7025_s1.begin(getBaudrateValue(currentBaudrate));
+    xy7025_1.begin(getBaudrateValue(currentBaudrate));
     
     Serial.println(F("✓ Baudrate local actualizado"));
     Serial.println(F("ℹ️ Cambio LOCAL únicamente - Solo afecta al Arduino"));
