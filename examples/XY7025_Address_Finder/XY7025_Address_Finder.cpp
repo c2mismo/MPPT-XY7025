@@ -35,6 +35,19 @@ const uint16_t CONNECTION_TIMEOUT_MS = 5000;  // 5 segundos para conexión
 const uint8_t MAX_RETRIES = 3;
 const uint16_t RETRY_DELAY_MS = 500;
 
+// Objetos de comunicación
+SoftwareSerial mpptSerial(MODBUS_RX, MODBUS_TX);
+XY7025_Modbus mppt(mpptSerial, MIN_SLAVE_ADDRESS);
+
+// Variables de estado
+SystemState systemState = STATE_INIT;
+uint8_t currentSlaveAddress = MIN_SLAVE_ADDRESS;      // Dirección slave inicial
+uint8_t currentBaudrate = 6;                          // 115200 bps por defecto (índice 6)
+uint8_t serialBaudrate = 115200;
+bool systemConnected = false;
+bool debugMode = true;
+bool searchCancelled = false;
+
 // Estados del sistema
 enum SystemState {
     STATE_INIT,
@@ -107,18 +120,6 @@ const char SUCCESS_CONFIG[] PROGMEM = "✓ Nueva configuración funciona correct
 const char WARN_VERIFY_FAIL[] PROGMEM = "⚠️ Advertencia: valor escrito pero verificación falló";
 const char WARN_NO_WORK[] PROGMEM = "⚠️ Nueva configuración no funciona";
 
-// Objetos de comunicación
-SoftwareSerial mpptSerial(MODBUS_RX, MODBUS_TX);
-XY7025_Modbus mppt(mpptSerial, MIN_SLAVE_ADDRESS);
-
-// Variables de estado
-SystemState systemState = STATE_INIT;
-uint8_t currentSlaveAddress = MIN_SLAVE_ADDRESS;      // Dirección slave inicial
-uint8_t currentBaudrate = 6;                          // 115200 bps por defecto (índice 6)
-bool systemConnected = false;
-bool debugMode = true;
-bool searchCancelled = false;
-
 //====================================================================
 // PROTOTIPOS DE FUNCIONES
 //====================================================================
@@ -165,7 +166,7 @@ ErrorCode readIntegerInput(int& value, int minVal, int maxVal, const char* promp
 //====================================================================
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(serialBaudrate);
     delay(1000);
     
     printFromPROGMEM(MSG_INIT);
