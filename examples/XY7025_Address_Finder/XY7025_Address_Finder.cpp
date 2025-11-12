@@ -1,17 +1,19 @@
 /*
   XY7025_Address_Finder - Configurador interactivo para dirección slave y baudrate
-  
+  para un unico equipo XY7025, se crearà una unica instancia XY7025_Ṃodbus
+
   Funcionalidades:
   - Verificar conexión con XY7025
   - Buscar dirección slave automáticamente
-  - Buscar baudrate automáticamente  
+  - Buscar baudrate automáticamente
   - Escribir configuración en XY7025
   - Cambiar configuración local (Arduino)
   - Menú interactivo con opciones completas
 
-  Autor: Código generado para proyecto XY7025
+  Autores: motxi y toniypedro quarrytroni@gmail.com
   Fecha: 2025-11-06
-  Versión mejorada: 2025-11-07
+  Estado: En desarrollo
+  Licencia: GNU
 */
 
 #include <Arduino.h>
@@ -177,7 +179,7 @@ void setup() {
     xy7025_serial.begin(baudValue);
     delay(500);
     
-    // Inicializar objeto MPPT
+    // Reinicializar instancia del objeto  XY7025_Modbus
     if (xy7025_1.begin(baudValue)) {
         delay(500);
         printFromPROGMEM(MSG_MODBUS_OK);
@@ -523,7 +525,7 @@ void searchSlaveAddress() {
         Serial.println(F("  - Comprobar conexiones"));
         Serial.println(F("  - Intentar búsqueda de baudrate"));
     } else if (found) {
-        // Inicializar objeto MPPT
+        // Reinicializar instancia del objeto  XY7025_Modbus
         XY7025_Modbus xy7025_1(xy7025_serial, currentSlaveAddress);
         if (xy7025_1.begin(getBaudrateValue(currentBaudrate))) {
             delay(500);
@@ -649,7 +651,7 @@ void searchBaudrateComplete() {
         Serial.println(F("  - XY7025 funcionando correctamente"));
     } else if (found) {
         
-        // Inicializar objeto MPPT
+        // Reinicializar instancia del objeto  XY7025_Modbus
         XY7025_Modbus xy7025_1(xy7025_serial, currentSlaveAddress);
         if (xy7025_1.begin(getBaudrateValue(currentBaudrate))) {
             delay(500);
@@ -715,6 +717,7 @@ ErrorCode writeToXY7025(uint16_t registerAddr, uint16_t value, const char* regNa
     
     Serial.println(F("\nEscribiendo en XY7025..."));
     
+    // Escribiendo valor en la unica instancia XY7025_Ṃodbus
     bool success = xy7025_1.writeRegister(registerAddr, value);
     
     if (success) {
