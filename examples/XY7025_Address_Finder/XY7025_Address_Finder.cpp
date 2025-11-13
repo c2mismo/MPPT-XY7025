@@ -98,7 +98,7 @@ const char MSG_READY[] PROGMEM = "\nConfigurador listo. Presione una tecla para 
 
 const char MSG_MENU_TITLE[] PROGMEM = "\n=== CONFIGURADOR XY7025 ===";
 const char MSG_STATUS[] PROGMEM = "Estado actual:";
-const char MSG_SLAVE_ADDR[] PROGMEM = "  Slave Address: ";
+const char MSG_SLAVE_ADR[] PROGMEM = "  Slave Address: ";
 const char MSG_BAUDRATE[] PROGMEM = "  Baudrate: ";
 const char MSG_CONNECTION[] PROGMEM = "  Conexión: ";
 const char MSG_DEBUG[] PROGMEM = "  Debug Mode: ";
@@ -293,7 +293,7 @@ void displayMenu() {
     printFromPROGMEM(MSG_MENU_TITLE);
     printFromPROGMEM(MSG_STATUS);
     
-    Serial.print(F("  Slave Address: "));
+    printFromPROGMEM(MSG_SLAVE_ADR);
     Serial.println(currentSlaveAddress);
     
     Serial.print(F("  Baudrate: "));
@@ -427,7 +427,7 @@ void verifyConnection() {
         Serial.println(F("Leyendo registros de configuración..."));
         
         // Leer dirección slave actual del dispositivo
-        uint16_t deviceSlave = xy7025_1.readRegister(XY7025_SLAVE_ADD);
+        uint16_t deviceSlave = xy7025_1.readRegister(XY7025_SLAVE_ADR);
         if (deviceSlave != XY7025_ERROR_UINT16) {
             Serial.print(F("  Dirección Slave en dispositivo: "));
             Serial.println(deviceSlave);
@@ -538,7 +538,7 @@ void searchSlaveAddress() {
             Serial.println(F("================================================"));
             Serial.println(F("✓ DISPOSITIVO ENCONTRADO"));
             Serial.print(F("  Dirección: "));
-            Serial.println(addr);
+            Serial.println(adr);
             Serial.print(F("  Baudrate: "));
             Serial.print(getBaudrateValue(currentBaudrate));
             Serial.println(F(" bps"));
@@ -592,7 +592,13 @@ void searchBaudrateComplete() {
         if (baudIndex == currentBaudrate) {
             continue;  // Salta el currentBaudrate
         }
-        Serial.print(F("\n--- Probando baudrate "));EMT
+        Serial.print(F("\n--- Probando baudrate "));
+        Serial.print(baudIndex);
+        Serial.print(F("/"));
+        Serial.print(BAUDRATE_COUNT-1);
+        Serial.print(F(" ("));
+        Serial.print(getBaudrateValue(baudIndex));
+        Serial.println(F(" bps) ---"));
         Serial.print(baudIndex);
         Serial.print(F("/"));
         Serial.print(BAUDRATE_COUNT-1);
@@ -609,23 +615,23 @@ void searchBaudrateComplete() {
         xy7025_1.begin(getBaudrateValue(baudIndex));
         
         // Buscar slave en este baudrate
-        for (uint8_t addr = MIN_SLAVE_ADDRESS; addr <= MAX_SLAVE_ADDRESS && !searchCancelled; addr++) {
+        for (uint8_t adr = MIN_SLAVE_ADDRESS; adr <= MAX_SLAVE_ADDRESS && !searchCancelled; adr++) {
             char progressMsg[64];
-            snprintf_P(progressMsg, sizeof(progressMsg), 
+            snprintf_P(progressMsg, sizeof(progressMsg),
                       PSTR("Baudrate %d - Probando slave"), baudIndex);
-            printProgress(addr, MAX_SLAVE_ADDRESS, progressMsg);
+            printProgress(adr, MAX_SLAVE_ADDRESS, progressMsg);
             
-            if (xy7025_1.probeSlaveAddress(addr)) {
+            if (xy7025_1.probeSlaveAddress(adr)) {
             // Actualizar configuración
                 currentBaudrate = baudIndex;
-                currentSlaveAddress = addr;
+                currentSlaveAddress = adr;
                 found = true;
                 break;
             // Verificar con lectura adicional
-            } else if (testConnectionWithAddressAndBaudrate(addr, getBaudrateValue(baudIndex))) {
+            } else if (testConnectionWithAddressAndBaudrate(adr, getBaudrateValue(baudIndex))) {
             // Actualizar configuración
                 currentBaudrate = baudIndex;
-                currentSlaveAddress = addr;
+                currentSlaveAddress = adr;
                 found = true;
                 break;
             }
@@ -745,7 +751,7 @@ void writeSlaveToXY7025() {
         return;
     }
     
-    ErrorCode result = writeToXY7025(XY7025_SLAVE_ADD, currentSlaveAddress, "SLAVE_ADD");
+    ErrorCode result = writeToXY7025(XY7025_SLAVE_ADR, currentSlaveAddress, "SLAVE_ADR");
     if (result == ERROR_NONE) {
         Serial.println(F("\n⚠️ REINICIO MANUAL REQUERIDO"));
         Serial.println(F("El cambio NO es efectivo hasta que:"));
@@ -817,6 +823,7 @@ void changeLocalSlave() {
     Serial.println(F(" bps"));
     Serial.println();
     
+    // Solicita y valida una nueva dirección slave
     int newAddress;
     if (readIntegerInput(newAddress, MIN_SLAVE_ADDRESS, MAX_SLAVE_ADDRESS, 
                         "Ingrese nueva dirección slave (1-247): ") != ERROR_NONE) {
