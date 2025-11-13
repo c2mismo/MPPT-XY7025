@@ -45,7 +45,7 @@ static const uint16_t XY7025_SLEEP        = 0x0015;  // Tiempo de apagado de pan
 // Información del dispositivo
 static const uint16_t XY7025_MODEL        = 0x0016;  // Modelo del producto
 static const uint16_t XY7025_VERSION      = 0x0017;  // Versión de firmware
-static const uint16_t XY7025_SLAVE_ADD    = 0x0018;  // Dirección del esclavo
+static const uint16_t XY7025_SLAVE_ADR    = 0x0018;  // Dirección del esclavo
 static const uint16_t XY7025_BAUDRATE_L    = 0x0019;  // Tasa de baudios
 
 // Ajustes de temperatura
