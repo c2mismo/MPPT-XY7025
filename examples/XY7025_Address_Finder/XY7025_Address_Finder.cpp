@@ -158,8 +158,8 @@ void changeLocalBaudrate();
 
 // Funciones auxiliares
 uint32_t getBaudrateValue(uint8_t index);
-const char* getConnectionStatusText();
-const char* getBaudrateName(uint8_t index);
+// const char* getConnectionStatusText();
+// const char* getBaudrateName(uint8_t index);
 ErrorCode waitForSerialResponse(char& response, uint16_t timeout = SERIAL_TIMEOUT_MS);
 ErrorCode readIntegerInput(int& value, int minVal, int maxVal, const char* prompt);
 ErrorCode updateLocalSlaveAfterWrite(uint8_t newSlaveAddress);
@@ -1040,12 +1040,13 @@ uint32_t getBaudrateValue(uint8_t index) {
     return value;
 }
 
+// Funciones comentadas temporalmente - no se utiliza en el código actual
+
+/*
 const char* getConnectionStatusText() {
     return systemConnected ? "OK" : "ERROR";
 }
 
-// Función comentada temporalmente - no se utiliza en el código actual
-/*
 const char* getBaudrateName(uint8_t index) {
     if (index >= BAUDRATE_COUNT) return "Desconocido";
     static char buffer[16];
