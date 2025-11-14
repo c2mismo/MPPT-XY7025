@@ -42,10 +42,10 @@ SoftwareSerial xy7025_serial(MODBUS_RX, MODBUS_TX);
 XY7025_Modbus xy7025_1(xy7025_serial, MIN_SLAVE_ADDRESS);
 
 // Variables de estado
-SystemState systemState = STATE_INIT;
-uint8_t currentSlaveAddress = MIN_SLAVE_ADDRESS;      // Dirección slave inicial
 uint8_t currentBaudrate = 6;                          // 115200 bps por defecto (índice 6)
 uint8_t serialBaudrate = 115200;
+SystemState systemState = STATE_INIT;
+uint8_t currentSlaveAddress = MIN_SLAVE_ADDRESS;      // Dirección slave inicial
 bool systemConnected = false;
 bool debugMode = true;
 bool searchCancelled = false;
@@ -132,7 +132,6 @@ void loop();
 
 // Funciones de menú y visualización
 void displayMenu();
-void showHelp();
 void printProgress(uint8_t current, uint8_t total, const char* prefix);
 void printFromPROGMEM(const char* str);
 void printConnectionStatus();
@@ -155,6 +154,9 @@ ErrorCode writeToXY7025(uint16_t registerAddr, uint16_t value, const char* regNa
 // Funciones de configuración local
 void changeLocalSlave();
 void changeLocalBaudrate();
+
+// Ayuda y utilidades
+void showHelp();
 
 // Funciones auxiliares
 uint32_t getBaudrateValue(uint8_t index);
