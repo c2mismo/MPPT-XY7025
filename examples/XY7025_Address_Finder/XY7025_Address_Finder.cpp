@@ -873,7 +873,7 @@ void changeLocalSlave() {
     Serial.println(newAddress);
     
     // Actualizar configuración local
-    currentSlaveAddress = (uint8_t)newAddress;
+    currentSlaveAddress = newAddress;
     // Reinicializar el objeto XY7025_Modbus con la nueva dirección
     xy7025_1 = XY7025_Modbus(xy7025_serial, currentSlaveAddress);
     
