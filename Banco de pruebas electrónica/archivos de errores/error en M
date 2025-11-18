@@ -1,0 +1,108 @@
+comprobando: examples/XY7025_Address_Finder
+
+
+1.- inicio con el xy7025 conf en slave = 2 
+
+2.- reset arduino
+
+3.- verifico connecion (a)
+
+4.- error de conexion
+
+
+5.- uso comando (m) y configuro escavo en 2 en arduino
+EXIT:
+20:12:58.741 > --- Ejecutando opción: [M] ---
+20:12:58.744 > --- CAMBIAR SLAVE LOCAL (Arduino) ---
+20:12:58.746 > Configuración actual:
+20:12:58.749 >   Slave Address local: 1
+20:12:58.749 >   Baudrate local: 115200 bps
+20:12:58.752 > 
+20:12:58.752 > Ingrese nueva dirección slave (1-247): Dirección ingresada: 2
+20:13:00.257 > ✓ Slave local actualizado a 2
+20:13:00.260 > ℹ️ Cambio LOCAL únicamente - Solo afecta al Arduino
+20:13:00.265 > ℹ️ Para guardar en XY7025 use opción [w]
+20:13:00.271 > Probando nueva configuración...
+20:13:00.273 > Probando conexión con slave 2 a 115200 bps...
+20:13:02.281 > ✗ Sin respuesta del dispositivo
+20:13:02.284 > ⚠️ Nueva configuración no funciona
+20:13:02.286 >   - Verifique que la dirección sea correcta
+20:13:02.289 >   - Si es necesario, restaure con opción [a]
+20:13:02.295 > 
+
+
+6.- uso comando (s)
+EXIT:
+20:14:41.461 > --- Ejecutando opción: [S] ---
+20:14:41.463 > --- BÚSQUEDA DE DIRECCIÓN SLAVE ---
+20:14:41.466 > ⚠️ Este proceso probará direcciones 1-247
+20:14:41.468 > Presione 'q' para cancelar en cualquier momento
+20:14:41.474 > 
+20:14:41.474 > ¿Continuar? (s/n): 
+20:14:42.977 > Iniciando búsqueda...Manteniendo baudrate: 115200 bps
+Probando dirección 2/247 (0%)✓ Comunicación Modbus inicializada
+20:14:47.534 > 
+20:14:47.534 > ================================================
+20:14:47.537 > ✓ DISPOSITIVO ENCONTRADO
+20:14:47.540 >   Dirección: 2
+20:14:47.543 >   Baudrate: 115200 bps
+20:14:47.545 > ================================================
+20:14:47.548 > 
+20:14:47.548 > ⚠️ ACCIÓN REQUERIDA:
+20:14:47.551 > Si desea MODIFICAR la dirección en el XY7025:
+20:14:47.554 > 1. Use opción [w] del menú
+20:14:47.556 > 2. Apague y encienda manualmente el XY7025 (botón físico - NO reinicio por software)
+20:14:47.565 > 3. Verifique conexión con opción [a]
+20:14:47.567 > 
+20:14:47.567 > --- Comando completado ---
+
+
+6.- uso comando (m) y configuro escavo en 3 en arduino
+EXIT:
+20:16:07.137 > --- Ejecutando opción: [M] ---
+20:16:07.139 > --- CAMBIAR SLAVE LOCAL (Arduino) ---
+20:16:07.142 > Configuración actual:
+20:16:07.145 >   Slave Address local: 2
+20:16:07.145 >   Baudrate local: 115200 bps
+20:16:07.147 > 
+20:16:07.147 > Ingrese nueva dirección slave (1-247): Dirección ingresada: 3
+20:16:08.653 > ✓ Slave local actualizado a 3
+20:16:08.655 > ℹ️ Cambio LOCAL únicamente - Solo afecta al Arduino
+20:16:08.660 > ℹ️ Para guardar en XY7025 use opción [w]
+20:16:08.666 > Probando nueva configuración...
+20:16:08.668 > Probando conexión con slave 3 a 115200 bps...
+20:16:08.775 > ✓ Respuesta recibida. Vout = 2589
+20:16:08.777 > ✓ Nueva configuración funciona correctamente
+20:16:08.780 > 
+20:16:08.780 > --- Comando completado ---
+
+7.- sin haber echo ningun cambio ni ejecutado otro comando 
+20:17:45.086 > --- Ejecutando opción: [A] ---
+20:17:45.089 > --- VERIFICANDO CONEXIÓN ---
+20:17:45.091 > Probando conexión con slave 3 a 115200 bps...
+20:17:45.149 > ✓ Respuesta recibida. Vout = 2589
+20:17:45.151 > Leyendo registros de configuración...
+20:17:45.167 >   Dirección Slave en dispositivo: 2
+20:17:45.170 >   Baudrate en dispositivo: 6 bps
+20:17:45.188 >   Voltaje salida actual: 25.89 V
+20:17:45.191 > ✓ Conexión VERIFICADA exitosamente
+20:17:45.194 > 
+20:17:45.194 > --- Comando completado ---
+
+
+
+cuando se ejecuta el comando (s) la busqueda encuentra e implementa correctamente el cambio de slave de echo al hacer la ultima verificacion:
+
+Probando conexión con slave 3 a 115200
+
+pero el dispositivo verifica con el slave = 2, que es el resultado de la busqueda (s) anterior
+
+quiere decir que al configurar el esclavo en el arduino ese valor se guarda en una variable que no es la variable que esta usando para verificar la configuracion
+
+
+
+
+
+
+
+
