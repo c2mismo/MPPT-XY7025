@@ -864,7 +864,7 @@ void changeLocalSlave() {
     
     // Solicitar y validar una nueva dirección slave ingresado por el usuario
     int newAddress;
-    if (readIntegerInput(newAddress, MIN_SLAVE_ADDRESS, MAX_SLAVE_ADDRESS, 
+    if (readIntegerInput(newAddress, MIN_SLAVE_ADDRESS, MAX_SLAVE_ADDRESS,
                         "Ingrese nueva dirección slave (1-247): ") != ERROR_NONE) {
         return;
     }
@@ -872,28 +872,32 @@ void changeLocalSlave() {
     Serial.print(F("Dirección ingresada: "));
     Serial.println(newAddress);
     
-    // Actualizar configuración local
-    currentSlaveAddress = newAddress;
-    // Reinicializar el objeto XY7025_Modbus con la nueva dirección
-    xy7025_1 = XY7025_Modbus(xy7025_serial, currentSlaveAddress);
+    // Actualizar configuración local usando el nuevo método changeSlaveAddress
+    bool success = xy7025_1.changeSlaveAddress((uint8_t)newAddress);
     
-    Serial.print(F("✓ Slave local actualizado a "));
-    Serial.println(currentSlaveAddress);
-    Serial.println(F("ℹ️ Cambio LOCAL únicamente - Solo afecta al Arduino"));
-    Serial.println(F("ℹ️ Para guardar en XY7025 use opción [w]"));
-    
-    // Probar nueva configuración
-    Serial.println(F("Probando nueva configuración..."));
-    systemConnected = testConnection();
-    
-    if (systemConnected) {
-        printFromPROGMEM(SUCCESS_CONFIG);
-        systemState = STATE_CONNECTED;
+    if (success) {
+        currentSlaveAddress = (uint8_t)newAddress;
+        Serial.print(F("✓ Slave local actualizado a "));
+        Serial.println(currentSlaveAddress);
+        Serial.println(F("ℹ️ Cambio LOCAL únicamente - Solo afecta al Arduino"));
+        Serial.println(F("ℹ️ Para guardar en XY7025 use opción [w]"));
+        
+        // Probar nueva configuración
+        Serial.println(F("Probando nueva configuración..."));
+        systemConnected = testConnection();
+        
+        if (systemConnected) {
+            printFromPROGMEM(SUCCESS_CONFIG);
+            systemState = STATE_CONNECTED;
+        } else {
+            printFromPROGMEM(WARN_NO_WORK);
+            Serial.println(F("  - Verifique que la dirección sea correcta"));
+            Serial.println(F("  - Si es necesario, restaure con opción [a]"));
+            systemState = STATE_ERROR;
+        }
     } else {
-        printFromPROGMEM(WARN_NO_WORK);
-        Serial.println(F("  - Verifique que la dirección sea correcta"));
-        Serial.println(F("  - Si es necesario, restaure con opción [a]"));
-        systemState = STATE_ERROR;
+        Serial.println(F("✗ Error al cambiar la dirección slave"));
+        Serial.println(F("  - Verifique que la dirección esté en el rango válido (1-247)"));
     }
 }
 

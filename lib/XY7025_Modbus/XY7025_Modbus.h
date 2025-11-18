@@ -206,6 +206,9 @@ public:
     // Función de prueba de dirección
     bool probeSlaveAddress(uint8_t address);
     
+    // Función para cambiar la dirección del esclavo sin recrear el objeto
+    bool changeSlaveAddress(uint8_t newAddress);
+    
     // Funciones de lectura específicas
     float readVoltageOutput();
     float readCurrentOutput();
