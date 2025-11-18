@@ -31,7 +31,7 @@ const uint8_t MODBUS_TX = 3;   // TX Arduino -> TX XY7025
 // Límites y valores mágicos
 const uint8_t MIN_SLAVE_ADDRESS = 1;
 const uint8_t MAX_SLAVE_ADDRESS = 247;
-const uint8_t BAUDRATE_COUNT;
+// BAUDRATE_COUNT se definirá después del array BAUDRATES
 const uint16_t SERIAL_TIMEOUT_MS = 10000;     // 10 segundos timeout
 const uint16_t CONNECTION_TIMEOUT_MS = 5000;  // 5 segundos para conexión
 const uint8_t MAX_RETRIES = 3;
@@ -43,8 +43,7 @@ XY7025_Modbus xy7025_1(xy7025_serial, MIN_SLAVE_ADDRESS);
 
 // Variables de estado
 uint8_t currentBaudrate = 6;                          // 115200 bps por defecto (índice 6)
-uint8_t serialBaudrate = 115200;
-SystemState systemState = STATE_INIT;
+const long serialBaudrate = 115200;
 uint8_t currentSlaveAddress = MIN_SLAVE_ADDRESS;      // Dirección slave inicial
 bool systemConnected = false;
 bool debugMode = true;
@@ -58,6 +57,9 @@ enum SystemState {
     STATE_CONNECTED,
     STATE_ERROR
 };
+
+// Variable de estado del sistema (definida después del enum)
+SystemState systemState = STATE_INIT;
 
 // Códigos de error
 enum ErrorCode {
@@ -83,7 +85,8 @@ const uint32_t BAUDRATES[] PROGMEM = {
     4800     // 8
 };
 
-BAUDRATE_COUNT = sizeof(BAUDRATES) / sizeof(BAUDRATES[0]);
+// Calcular el número de baudrates disponibles
+const uint8_t BAUDRATE_COUNT = sizeof(BAUDRATES) / sizeof(BAUDRATES[0]);
 
 // Mensajes constantes en PROGMEM para ahorrar RAM
 const char MSG_INIT[] PROGMEM = "=== INICIANDO CONFIGURADOR XY7025 ===";
@@ -307,7 +310,7 @@ void displayMenu() {
     Serial.println(F(")"));
     
     Serial.print(F("  Conexión: "));
-    Serial.println(getConnectionStatusText());
+    Serial.println(systemConnected ? "OK" : "ERROR");
     
     Serial.print(F("  Debug Mode: "));
     Serial.println(debugMode ? F("ON") : F("OFF"));
@@ -542,7 +545,7 @@ void searchSlaveAddress() {
             Serial.println(F("================================================"));
             Serial.println(F("✓ DISPOSITIVO ENCONTRADO"));
             Serial.print(F("  Dirección: "));
-            Serial.println(adr);
+            Serial.println(currentSlaveAddress);
             Serial.print(F("  Baudrate: "));
             Serial.print(getBaudrateValue(currentBaudrate));
             Serial.println(F(" bps"));
@@ -757,9 +760,6 @@ void writeSlaveToXY7025() {
         return;
     }
     
-    // Guardar la dirección actual antes de cambiarla
-    uint8_t oldSlaveAddress = currentSlaveAddress;
-    
     ErrorCode result = writeToXY7025(XY7025_SLAVE_ADR, currentSlaveAddress, "SLAVE_ADR");
     if (result == ERROR_NONE) {
         Serial.println(F("\n⚠️ REINICIO MANUAL REQUERIDO"));
@@ -775,10 +775,6 @@ void writeSlaveToXY7025() {
         Serial.println(F("\nConfiguración programada para actualización automática:"));
         Serial.print(F("  Nueva dirección slave: "));
         Serial.println(currentSlaveAddress);
-        
-        // Marcar que necesitamos actualizar la configuración local después del reinicio
-        bool pendingLocalUpdate = true;
-        uint8_t pendingSlaveAddress = currentSlaveAddress;
         
         Serial.println(F("\nPasos siguientes:"));
         Serial.println(F("1. REINICIE MANUALMENTE el XY7025"));
@@ -800,9 +796,6 @@ void writeBaudrateToXY7025() {
         printFromPROGMEM(ERROR_NO_CONN);
         return;
     }
-    
-    // Guardar el baudrate actual antes de cambiarlo
-    uint8_t oldBaudrate = currentBaudrate;
     
     Serial.println(F("Configuración actual:"));
     Serial.print(F("  Baudrate local: "));
@@ -841,10 +834,6 @@ void writeBaudrateToXY7025() {
         Serial.print(F("  Nuevo baudrate: "));
         Serial.print(getBaudrateValue(currentBaudrate));
         Serial.println(F(" bps"));
-        
-        // Marcar que necesitamos actualizar la configuración local después del reinicio
-        bool pendingLocalUpdate = true;
-        uint8_t pendingBaudrate = currentBaudrate;
         
         Serial.println(F("\nPasos siguientes:"));
         Serial.println(F("1. REINICIE MANUALMENTE el XY7025"));
