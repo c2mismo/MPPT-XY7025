@@ -441,12 +441,14 @@ void verifyConnection() {
             Serial.println(deviceSlave);
         }
         
-        // Leer baudrate actual del dispositivo  
+        // Leer baudrate actual del dispositivo
         uint16_t deviceBaudrate = xy7025_1.readBaudrate();
         if (deviceBaudrate != XY7025_ERROR_UINT16) {
             Serial.print(F("  Baudrate en dispositivo: "));
+            Serial.print(getBaudrateValue(deviceBaudrate));
+            Serial.print(F(" bps (índice "));
             Serial.print(deviceBaudrate);
-            Serial.println(F(" bps"));
+            Serial.println(F(")"));
         }
         
         // Leer voltaje de salida actual
