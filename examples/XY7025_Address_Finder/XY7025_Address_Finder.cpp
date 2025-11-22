@@ -78,7 +78,7 @@ const uint32_t BAUDRATES[] PROGMEM = {
     14400,   // 1
     19200,   // 2
     38400,   // 3
-    56000,   // 4 ¿ = 28800 ?
+    56000,   // 4
     57600,   // 5
     115200,  // 6 - Por defecto
     2400,    // 7
@@ -176,19 +176,20 @@ ErrorCode updateLocalBaudrateAfterWrite(uint8_t newBaudrateIndex);
 
 void setup() {
     Serial.begin(serialBaudrate);
-    delay(1000);
+    delay(600);
     
+    Serial.println();
     printFromPROGMEM(MSG_INIT);
     printFromPROGMEM(MSG_SEARCH);
     
     // Inicializar comunicación con baudrate por defecto
     uint32_t baudValue = getBaudrateValue(currentBaudrate);
     xy7025_serial.begin(baudValue);
-    delay(500);
+    delay(600);
     
     // Reinicializar instancia del objeto  XY7025_Modbus
     if (xy7025_1.begin(baudValue)) {
-        delay(500);
+        delay(600);
         printFromPROGMEM(MSG_MODBUS_OK);
     } else {
         printFromPROGMEM(MSG_MODBUS_ERROR);
@@ -288,7 +289,7 @@ void loop() {
         }
         
         Serial.println(F("\n--- Comando completado ---"));
-        delay(500);
+        delay(600);
     }
 }
 
@@ -440,12 +441,14 @@ void verifyConnection() {
             Serial.println(deviceSlave);
         }
         
-        // Leer baudrate actual del dispositivo  
+        // Leer baudrate actual del dispositivo
         uint16_t deviceBaudrate = xy7025_1.readBaudrate();
         if (deviceBaudrate != XY7025_ERROR_UINT16) {
             Serial.print(F("  Baudrate en dispositivo: "));
+            Serial.print(getBaudrateValue(deviceBaudrate));
+            Serial.print(F(" bps (índice "));
             Serial.print(deviceBaudrate);
-            Serial.println(F(" bps"));
+            Serial.println(F(")"));
         }
         
         // Leer voltaje de salida actual
@@ -535,7 +538,7 @@ void searchSlaveAddress() {
         // Actualizar la instancia global existente en lugar de crear una nueva local
         xy7025_1 = XY7025_Modbus(xy7025_serial, currentSlaveAddress);
         if (xy7025_1.begin(getBaudrateValue(currentBaudrate))) {
-            delay(500);
+            delay(600);
             printFromPROGMEM(MSG_MODBUS_OK);
             systemConnected = true;
             systemState = STATE_CONNECTED;
@@ -619,10 +622,11 @@ void searchBaudrateComplete() {
         delay(100);
         // 2. Inicializar SoftwareSerial con nuevo baudrate
         xy7025_serial.begin(getBaudrateValue(baudIndex));
-        delay(200);
+        delay(600);
         // 3. Reconfigurar XY7025_Modbus con el nuevo baudrate
         // Nota: No necesitamos destruir xy7025_1, solo reconfigurarlo
         xy7025_1.begin(getBaudrateValue(baudIndex));
+        delay(600);
         
         // Buscar slave en este baudrate
         for (uint8_t adr = MIN_SLAVE_ADDRESS; adr <= MAX_SLAVE_ADDRESS && !searchCancelled; adr++) {
@@ -669,7 +673,7 @@ void searchBaudrateComplete() {
         // Actualizar la instancia global existente en lugar de crear una nueva local
         xy7025_1 = XY7025_Modbus(xy7025_serial, currentSlaveAddress);
         if (xy7025_1.begin(getBaudrateValue(currentBaudrate))) {
-            delay(500);
+            delay(600);
             printFromPROGMEM(MSG_MODBUS_OK);
             systemConnected = true;
             systemState = STATE_CONNECTED;
@@ -874,13 +878,13 @@ void changeLocalSlave() {
     
     // Actualizar configuración local usando el nuevo método changeSlaveAddress
     bool success = xy7025_1.changeSlaveAddress((uint8_t)newAddress);
+    delay (200);
     
     if (success) {
         currentSlaveAddress = (uint8_t)newAddress;
         Serial.print(F("✓ Slave local actualizado a "));
         Serial.println(currentSlaveAddress);
         Serial.println(F("ℹ️ Cambio LOCAL únicamente - Solo afecta al Arduino"));
-        Serial.println(F("ℹ️ Para guardar en XY7025 use opción [w]"));
         
         // Probar nueva configuración
         Serial.println(F("Probando nueva configuración..."));
@@ -950,16 +954,16 @@ void changeLocalBaudrate() {
     delay(100);
     // 2. Inicializar SoftwareSerial con nuevo baudrate
     xy7025_serial.begin(getBaudrateValue(newBaudrate));
-    delay(200);
+    delay(600);
     
     // Actualizar configuración local
     currentBaudrate = (uint8_t)newBaudrate;
     // 3. Reconfigurar XY7025_Modbus con el nuevo baudrate
     xy7025_1.begin(getBaudrateValue(currentBaudrate));
+    delay(600);
     
     Serial.println(F("✓ Baudrate local actualizado"));
     Serial.println(F("ℹ️ Cambio LOCAL únicamente - Solo afecta al Arduino"));
-    Serial.println(F("ℹ️ Para guardar en XY7025 use opción [r]"));
     
     // Probar nueva configuración
     Serial.println(F("Probando nueva configuración..."));
@@ -1134,6 +1138,7 @@ ErrorCode updateLocalSlaveAfterWrite(uint8_t newSlaveAddress) {
         currentSlaveAddress = oldSlaveAddress;
         xy7025_1 = XY7025_Modbus(xy7025_serial, currentSlaveAddress);
         xy7025_1.begin(getBaudrateValue(currentBaudrate));
+        delay(600);
         
         // Verificar si la configuración anterior funciona
         systemConnected = testConnection();
@@ -1166,7 +1171,7 @@ ErrorCode updateLocalBaudrateAfterWrite(uint8_t newBaudrateIndex) {
     delay(100);
     // 2. Inicializar SoftwareSerial con nuevo baudrate
     xy7025_serial.begin(getBaudrateValue(currentBaudrate));
-    delay(200);
+    delay(600);
     
     // Reinicializar el objeto XY7025_Modbus con el nuevo baudrate
     xy7025_1.begin(getBaudrateValue(currentBaudrate));
@@ -1191,9 +1196,10 @@ ErrorCode updateLocalBaudrateAfterWrite(uint8_t newBaudrateIndex) {
         delay(100);
         // 2. Restaurar SoftwareSerial con baudrate anterior
         xy7025_serial.begin(getBaudrateValue(currentBaudrate));
-        delay(200);
+        delay(600);
         // 3. Restaurar XY7025_Modbus con baudrate anterior
         xy7025_1.begin(getBaudrateValue(currentBaudrate));
+        delay(600);
         
         // Verificar si la configuración anterior funciona
         systemConnected = testConnection();
