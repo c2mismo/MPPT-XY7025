@@ -178,6 +178,7 @@ void setup() {
     Serial.begin(serialBaudrate);
     delay(200);
     
+    Serial.println();
     printFromPROGMEM(MSG_INIT);
     printFromPROGMEM(MSG_SEARCH);
     
@@ -882,7 +883,6 @@ void changeLocalSlave() {
         Serial.print(F("✓ Slave local actualizado a "));
         Serial.println(currentSlaveAddress);
         Serial.println(F("ℹ️ Cambio LOCAL únicamente - Solo afecta al Arduino"));
-        Serial.println(F("ℹ️ Para guardar en XY7025 use opción [w]"));
         
         // Probar nueva configuración
         Serial.println(F("Probando nueva configuración..."));
@@ -962,7 +962,6 @@ void changeLocalBaudrate() {
     
     Serial.println(F("✓ Baudrate local actualizado"));
     Serial.println(F("ℹ️ Cambio LOCAL únicamente - Solo afecta al Arduino"));
-    Serial.println(F("ℹ️ Para guardar en XY7025 use opción [r]"));
     
     // Probar nueva configuración
     Serial.println(F("Probando nueva configuración..."));
