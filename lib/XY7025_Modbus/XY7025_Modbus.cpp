@@ -426,3 +426,27 @@ String XY7025_Modbus::getProtectionDescription(uint8_t status) {
     uint16_t XY7025_Modbus::readChargeMode() {
         return readRegister(XY7025_CVCC);
     }
+
+    // Función para cambiar la dirección del esclavo sin recrear el objeto
+    bool XY7025_Modbus::changeSlaveAddress(uint8_t newAddress) {
+        if (newAddress < 1 || newAddress > 247) {
+            if (debugMode) {
+                Serial.print(F("XY7025_Modbus: Dirección inválida: "));
+                Serial.println(newAddress);
+            }
+            return false;
+        }
+        
+        // Actualizar la dirección del esclavo
+        slaveAddress = newAddress;
+        
+        // Reconfigurar el objeto ModbusMaster con la nueva dirección
+        modbus.begin(slaveAddress, *serial);
+        
+        if (debugMode) {
+            Serial.print(F("XY7025_Modbus: Dirección cambiada a "));
+            Serial.println(slaveAddress);
+        }
+        
+        return true;
+    }
