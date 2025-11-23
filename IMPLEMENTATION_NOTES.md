@@ -186,6 +186,80 @@ Se ha implementado completamente el comando de escritura que permite escribir va
 - Error de comunicación Modbus
 - Dispositivo bloqueado o valor fuera de rango
 
+## Nueva Estructura de Perfiles M0-M9 (Actualización Reciente)
+
+### Reestructuración de Registros de Perfiles
+
+Se ha implementado una nueva estructura más clara y escalable para el acceso a los perfiles de memoria M0-M9:
+
+#### 1. Enum de Offsets Unificado
+```cpp
+enum ProfileOffset {
+    PROFILE_V_SET    = 0x00,  // Voltaje objetivo
+    PROFILE_I_SET    = 0x01,  // Corriente objetivo
+    PROFILE_S_LVP    = 0x02,  // Protección subtensión
+    PROFILE_S_OVP    = 0x03,  // Protección sobretensión
+    PROFILE_S_OCP    = 0x04,  // Protección sobrecorriente
+    PROFILE_S_OPP    = 0x05,  // Protección sobrepotencia
+    PROFILE_S_OHP_H  = 0x06,  // Protección tiempo horas
+    PROFILE_S_OHP_M  = 0x07,  // Protección tiempo minutos
+    PROFILE_S_OAH_L  = 0x08,  // Contador AH bajo
+    PROFILE_S_OAH_H  = 0x09,  // Contador AH alto
+    PROFILE_S_OWH_L  = 0x0A,  // Contador WH bajo
+    PROFILE_S_OWH_H  = 0x0B,  // Contador WH alto
+    PROFILE_S_OTP    = 0x0C,  // Protección temperatura interna
+    PROFILE_S_ETP    = 0x0D   // Protección temperatura externa (Batería)
+};
+```
+
+#### 2. Métodos Genéricos de Acceso
+```cpp
+// Leer un registro de perfil
+uint16_t readProfileReg(uint8_t profile, ProfileOffset offset);
+
+// Escribir un registro de perfil
+bool writeProfileReg(uint8_t profile, ProfileOffset offset, uint16_t value);
+```
+
+#### 3. Fórmula de Direccionamiento Mejorada
+```cpp
+#define XY7025_PROFILE_REGISTER(perfil, offset) (0x0050 + (perfil * 0x0010) + offset)
+```
+
+### Ventajas de la Nueva Estructura
+
+1. **Escalabilidad**: Fácil añadir nuevos offsets si se descubren más registros
+2. **Mantenibilidad**: Código más limpio y menos repetitivo
+3. **Flexibilidad**: Un solo método para acceder a cualquier perfil M0-M9
+4. **Validación**: Los métodos incluyen validación de rangos automática (perfil 0-9)
+5. **Debug**: Modo debug muestra información detallada de las operaciones
+
+### Ejemplos de Uso
+
+```cpp
+// Leer voltaje objetivo del perfil M3
+uint16_t voltaje = mppt.readProfileReg(3, PROFILE_V_SET);
+
+// Configurar perfil M5 con 24V y 5A
+mppt.writeProfileReg(5, PROFILE_V_SET, 2400);  // 24.00V
+mppt.writeProfileReg(5, PROFILE_I_SET, 5000);  // 5.000A
+
+// Configurar protecciones para perfil M2
+mppt.writeProfileReg(2, PROFILE_S_LVP, 2200);  // LVP 22.00V
+mppt.writeProfileReg(2, PROFILE_S_OVP, 2800);  // OVP 28.00V
+mppt.writeProfileReg(2, PROFILE_S_OCP, 6000);  // OCP 6.000A
+```
+
+### Archivos Creados
+
+- `examples/Profile_Example/Profile_Example.ino`: Ejemplo completo de uso de la nueva estructura
+- `examples/Profile_Example/README.md`: Documentación detallada de la nueva estructura
+
+### Archivos Modificados
+
+- `lib/XY7025_Modbus/XY7025_Modbus.h`: Nueva estructura de perfiles y declaración de métodos
+- `lib/XY7025_Modbus/XY7025_Modbus.cpp`: Implementación de métodos genéricos readProfileReg() y writeProfileReg()
+
 ## Próximas Mejoras Sugeridas
 
 1. **Optimización de memoria**: Usar PROGMEM para tablas de conversión
@@ -196,4 +270,4 @@ Se ha implementado completamente el comando de escritura que permite escribir va
 
 ## Conclusión
 
-La biblioteca XY7025_Modbus está completa y lista para su uso en proyectos de control de cargadores MPPT XY7025. Implementa todas las funciones especificadas en la arquitectura y proporciona una interfaz robusta y fácil de usar para la comunicación Modbus.
+La biblioteca XY7025_Modbus está completa y lista para su uso en proyectos de control de cargadores MPPT XY7025. La nueva estructura de perfiles proporciona una interfaz mucho más limpia y mantenible para acceder a las memorias M0-M9, eliminando la necesidad de definir constantes individuales para cada perfil y facilitando el desarrollo de aplicaciones que gestionen múltiples perfiles de forma dinámica.
