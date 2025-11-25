@@ -17,7 +17,6 @@
  */
 
 #include <XY7025_Modbus.h>
-#include <SoftwareSerial.h>
 
 // Configuración de pines para SoftwareSerial
 const uint8_t RX_PIN = 2;
