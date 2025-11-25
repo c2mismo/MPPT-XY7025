@@ -38,6 +38,9 @@ void XY7025_Modbus::enableDebug(bool enable) {
 }
 
 // Método privado para leer registros con manejo de errores
+// address = dirección inicial (2 bytes)
+// count = registros consecutivos quieres leer (2 bytes)
+// Máximo 64 registros (definido en ModbusMaster.h como ku8MaxBufferSize = 64
 bool XY7025_Modbus::readHoldingRegisters(uint16_t address, uint8_t count) {
     uint8_t result;
     uint8_t attempt = 0;
@@ -72,7 +75,13 @@ bool XY7025_Modbus::readHoldingRegisters(uint16_t address, uint8_t count) {
         
         // Delay entre reintentos con backoff exponencial
         delay(retryDelay);
-        retryDelay = min(retryDelay * 2, maxRetryDelay); // Duplicar delay hasta el máximo
+        // Duplicar delay hasta el máximo
+        if (retryDelay < maxRetryDelay) {
+            retryDelay * 2;
+        }
+        if (retryDelay > maxRetryDelay) {
+            retryDelay = maxRetryDelay;
+        }
         
     } while (attempt < retries);
     
