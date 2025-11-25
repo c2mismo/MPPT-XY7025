@@ -63,24 +63,31 @@ static const uint16_t XY7025_CW_SW       = 0x0022;  // Habilitar potencia consta
 static const uint16_t XY7025_CW          = 0x0023;  // Potencia constante objetivo
 
 // Registros de Perfiles (0x0050-0x00ED)
-// Perfil M0 (registros 0x0050-0x005D)
-static const uint16_t XY7025_M0_V_SET     = 0x0050;  // Voltaje objetivo M0
-static const uint16_t XY7025_M0_I_SET     = 0x0051;  // Corriente objetivo M0
-static const uint16_t XY7025_M0_S_LVP     = 0x0052;  // Protección subtensión M0
-static const uint16_t XY7025_M0_S_OVP     = 0x0053;  // Protección sobretensión M0
-static const uint16_t XY7025_M0_S_OCP     = 0x0054;  // Protección sobrecorriente M0
-static const uint16_t XY7025_M0_S_OPP     = 0x0055;  // Protección sobrepotencia M0
-static const uint16_t XY7025_M0_S_OHP_H   = 0x0056;  // Límite tiempo horas M0
-static const uint16_t XY7025_M0_S_OHP_M   = 0x0057;  // Límite tiempo minutos M0
-static const uint16_t XY7025_M0_S_OAH_L   = 0x0058;  // Contador AH bajo M0
-static const uint16_t XY7025_M0_S_OAH_H   = 0x0059;  // Contador AH alto M0
-static const uint16_t XY7025_M0_S_OWH_L   = 0x005A;  // Contador WH bajo M0
-static const uint16_t XY7025_M0_S_OWH_H   = 0x005B;  // Contador WH alto M0
-static const uint16_t XY7025_M0_S_OTP     = 0x005C;  // Temperatura máxima M0
-static const uint16_t XY7025_M0_S_INI     = 0x005D;  // Estado inicial M0
+// Estructura unificada para acceso a perfiles M0-M9
 
-// Fórmula para perfiles M1-M9: 0x0050 + (perfil * 0x0010) + offset
-#define XY7025_PROFILE_REGISTER(perfil, offset) (0x0050 + (perfil * 0x0010) + offset)
+// Offsets dentro de cada perfil (0x00-0x0D)
+enum ProfileOffset {
+    PROFILE_V_SET    = 0x00,  // Voltaje objetivo
+    PROFILE_I_SET    = 0x01,  // Corriente objetivo
+    PROFILE_S_LVP    = 0x02,  // Protección subtensión
+    PROFILE_S_OVP    = 0x03,  // Protección sobretensión
+    PROFILE_S_OCP    = 0x04,  // Protección sobrecorriente
+    PROFILE_S_OPP    = 0x05,  // Protección sobrepotencia
+    PROFILE_S_OHP_H  = 0x06,  // Protección tiempo horas
+    PROFILE_S_OHP_M  = 0x07,  // Protección tiempo minutos
+    PROFILE_S_OAH_L  = 0x08,  // Contador AH bajo
+    PROFILE_S_OAH_H  = 0x09,  // Contador AH alto
+    PROFILE_S_OWH_L  = 0x0A,  // Contador WH bajo
+    PROFILE_S_OWH_H  = 0x0B,  // Contador WH alto
+    PROFILE_S_OTP    = 0x0C,  // Protección temperatura interna
+    PROFILE_S_ETP    = 0x0D   // Protección temperatura externa (Batería)
+};
+
+// Dirección base de perfiles
+static const uint16_t XY7025_PROFILE_BASE = 0x0050;
+
+// Fórmula para calcular dirección de cualquier perfil M0-M9
+#define XY7025_PROFILE_REGISTER(perfil, offset) (XY7025_PROFILE_BASE + (perfil * 0x0010) + offset)
 
 // Códigos de error estándar de ModbusMaster
 const uint8_t XY7025_SUCCESS           = 0x00;  // Éxito
@@ -225,6 +232,10 @@ public:
     bool setOutputPower(float power);
     bool enableOutput(bool enable);
     bool setProfile(uint8_t profile);
+    
+    // Funciones de lectura y escritura de perfiles M0-M9
+    uint16_t readProfileReg(uint8_t profile, ProfileOffset offset);
+    bool writeProfileReg(uint8_t profile, ProfileOffset offset, uint16_t value);
     
     // Funciones de lectura de registros específicos
     uint16_t readRegister(uint16_t address);

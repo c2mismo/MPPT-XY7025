@@ -358,6 +358,57 @@ bool XY7025_Modbus::setProfile(uint8_t profile) {
     return writeRegister(XY7025_EXTRACT_M, profile);
 }
 
+// Funciones de lectura y escritura de perfiles M0-M9
+uint16_t XY7025_Modbus::readProfileReg(uint8_t profile, ProfileOffset offset) {
+    // Validar rango de perfil (0-9)
+    if (profile > 9) {
+        if (debugMode) {
+            Serial.println(F("XY7025_Modbus: Perfil fuera de rango (0-9)"));
+        }
+        return XY7025_ERROR_UINT16;
+    }
+    
+    // Calcular dirección del registro usando la fórmula
+    uint16_t address = XY7025_PROFILE_REGISTER(profile, offset);
+    
+    if (debugMode) {
+        Serial.print(F("XY7025_Modbus: Leyendo perfil M"));
+        Serial.print(profile);
+        Serial.print(F(", offset 0x"));
+        Serial.print(offset, HEX);
+        Serial.print(F(" -> dirección 0x"));
+        Serial.println(address, HEX);
+    }
+    
+    return readRegister(address);
+}
+
+bool XY7025_Modbus::writeProfileReg(uint8_t profile, ProfileOffset offset, uint16_t value) {
+    // Validar rango de perfil (0-9)
+    if (profile > 9) {
+        if (debugMode) {
+            Serial.println(F("XY7025_Modbus: Perfil fuera de rango (0-9)"));
+        }
+        return false;
+    }
+    
+    // Calcular dirección del registro usando la fórmula
+    uint16_t address = XY7025_PROFILE_REGISTER(profile, offset);
+    
+    if (debugMode) {
+        Serial.print(F("XY7025_Modbus: Escribiendo perfil M"));
+        Serial.print(profile);
+        Serial.print(F(", offset 0x"));
+        Serial.print(offset, HEX);
+        Serial.print(F(" -> dirección 0x"));
+        Serial.print(address, HEX);
+        Serial.print(F(", valor: "));
+        Serial.println(value);
+    }
+    
+    return writeRegister(address, value);
+}
+
 // Funciones de estado y protección
 uint8_t XY7025_Modbus::getProtectionStatus() {
     if (readHoldingRegisters(XY7025_PROTECT, 1)) {
