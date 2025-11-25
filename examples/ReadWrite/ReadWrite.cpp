@@ -31,9 +31,9 @@ const uint8_t MODBUS_TX = 3;   // TX Arduino -> TX XY7025
 // const uint8_t RE_DE_PIN 12;  // Pin de control RE/DE para RS485
 
 // Configuración de comunicación
-const long MODBUS_BAUDRATE 115200
-const long SERIAL_BAUDRATE 115200
-const uint8_t SLAVE_ADDRESS 1
+const long MODBUS_BAUDRATE = 115200;
+const long SERIAL_BAUDRATE = 115200;
+const uint8_t SLAVE_ADDRESS = 1;
 
 // Crear objeto SoftwareSerial para comunicación Modbus
 SoftwareSerial modbusSerial(MODBUS_RX, MODBUS_TX);
