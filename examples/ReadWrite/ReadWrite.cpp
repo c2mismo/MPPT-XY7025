@@ -123,6 +123,10 @@ void loop() {
     // Limpiar buffer para siguiente comando
     inputString = "";
     stringComplete = false;
+    // Limpiar cualquier entrada pendiente
+    while (Serial.available()) {
+      Serial.read();
+    }
   }
 }
 
@@ -139,7 +143,7 @@ void printMenu() {
   Serial.println(F("7. Escribir registro con valor hex"));
   Serial.println(F("8. Leer todos los registros"));
   Serial.println(F("9. Ayuda (help)"));
-  Serial.println(F("0. Salir"));
+  Serial.println(F("Q. Salir"));
   Serial.println();
   Serial.print(F("Ingrese comando: "));
 }
@@ -152,12 +156,39 @@ void processCommand(char command) {
     case '1':
       // Leer registro individual
       {
+        Serial.println(F("1. Leer registro individual"));
         Serial.print(F("Ingrese dirección del registro (HEX): "));
         while (!Serial.available()) {
           delay(10);
         }
         String hexAddress = Serial.readStringUntil('\n');
         hexAddress.trim();
+        
+        // Limpiar cualquier entrada pendiente
+        while (Serial.available()) {
+          Serial.read();
+        }
+        
+        // Validar entrada hexadecimal
+        if (hexAddress.length() == 0) {
+          Serial.println(F("Error: No se ingresó ninguna dirección"));
+          break;
+        }
+        
+        // Convertir a mayúsculas y eliminar prefijos 0x si existen
+        hexAddress.toUpperCase();
+        if (hexAddress.startsWith("0X")) {
+          hexAddress = hexAddress.substring(2);
+        }
+        
+        // Validar que solo contenga caracteres hexadecimales válidos
+        for (unsigned int i = 0; i < hexAddress.length(); i++) {
+          char c = hexAddress.charAt(i);
+          if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F'))) {
+            Serial.println(F("Error: Caracter inválido en dirección hexadecimal"));
+            break;
+          }
+        }
         
         uint16_t address = (uint16_t)strtol(hexAddress.c_str(), NULL, 16);
         uint16_t value = readSingleRegister(address);
@@ -166,6 +197,9 @@ void processCommand(char command) {
           printRegisterValue(address, value);
         } else {
           Serial.print(F("Error leyendo registro 0x"));
+          if (address < 0x1000) Serial.print(F("0"));
+          if (address < 0x100) Serial.print(F("0"));
+          if (address < 0x10) Serial.print(F("0"));
           Serial.println(address, HEX);
         }
       }
@@ -174,6 +208,7 @@ void processCommand(char command) {
     case '2':
       // Leer registro de perfil
       {
+        Serial.println(F("3. Escribir registro individual"));
         Serial.print(F("Ingrese número de perfil (0-9): "));
         while (!Serial.available()) {
           delay(10);
@@ -211,6 +246,7 @@ void processCommand(char command) {
     case '3':
       // Escribir registro individual
       {
+        Serial.println(F("4. Escribir registro de perfil"));
         Serial.print(F("Ingrese dirección del registro (HEX): "));
         while (!Serial.available()) {
           delay(10);
@@ -233,6 +269,9 @@ void processCommand(char command) {
         Serial.print(F("Escribiendo "));
         Serial.print(value);
         Serial.print(F(" en registro 0x"));
+        if (address < 0x1000) Serial.print(F("0"));
+        if (address < 0x100) Serial.print(F("0"));
+        if (address < 0x10) Serial.print(F("0"));
         Serial.print(address, HEX);
         Serial.print(F("... "));
         Serial.println(success ? F("ÉXITO") : F("ERROR"));
@@ -242,6 +281,7 @@ void processCommand(char command) {
     case '4':
       // Escribir registro de perfil
       {
+        Serial.println(F("4. Escribir registro de perfil"));
         Serial.print(F("Ingrese número de perfil (0-9): "));
         while (!Serial.available()) {
           delay(10);
@@ -287,6 +327,7 @@ void processCommand(char command) {
     case '5':
       // Leer múltiples registros
       {
+        Serial.println(F("5. Leer múltiples registros"));
         Serial.print(F("Ingrese dirección inicial (HEX): "));
         while (!Serial.available()) {
           delay(10);
@@ -294,7 +335,7 @@ void processCommand(char command) {
         String hexAddress = Serial.readStringUntil('\n');
         hexAddress.trim();
         
-        Serial.print(F("Ingrese cantidad de registros (1-10): "));
+        Serial.print(F("Ingrese cantidad de registros (1-64): "));
         while (!Serial.available()) {
           delay(10);
         }
@@ -304,10 +345,10 @@ void processCommand(char command) {
         uint16_t startAddress = (uint16_t)strtol(hexAddress.c_str(), NULL, 16);
         uint8_t count = countStr.toInt();
         
-        if (count > 0 && count <= 10) {
+        if (count > 0 && count <= 64) {
           readMultipleRegisters(startAddress, count);
         } else {
-          Serial.println(F("Cantidad de registros fuera de rango (1-10)"));
+          Serial.println(F("Cantidad de registros fuera de rango (1-64)"));
         }
       }
       break;
@@ -315,6 +356,7 @@ void processCommand(char command) {
     case '6':
       // Leer registro con valor hex
       {
+        Serial.println(F("6. Leer registro con valor hex"));
         Serial.print(F("Ingrese dirección del registro (HEX): "));
         while (!Serial.available()) {
           delay(10);
@@ -330,6 +372,7 @@ void processCommand(char command) {
     case '7':
       // Escribir registro con valor hex
       {
+        Serial.println(F("7. Escribir registro con valor hex"));
         Serial.print(F("Ingrese dirección del registro (HEX): "));
         while (!Serial.available()) {
           delay(10);
@@ -351,6 +394,9 @@ void processCommand(char command) {
         Serial.print(F("Escribiendo 0x"));
         Serial.print(hexValue);
         Serial.print(F(" en registro 0x"));
+        if (address < 0x1000) Serial.print(F("0"));
+        if (address < 0x100) Serial.print(F("0"));
+        if (address < 0x10) Serial.print(F("0"));
         Serial.print(address, HEX);
         Serial.print(F("... "));
         Serial.println(success ? F("ÉXITO") : F("ERROR"));
@@ -360,6 +406,7 @@ void processCommand(char command) {
     case '8':
       // Leer todos los registros
       {
+        Serial.println(F("8. Leer todos los registros"));
         Serial.println(F("Leyendo todos los registros principales..."));
         xy7025.readAllRegisters(Serial);
       }
@@ -388,7 +435,7 @@ void processCommand(char command) {
       }
       break;
       
-    case '0':
+    case 'Q':
       // Salir
       Serial.println(F("Saliendo del programa..."));
       Serial.println(F("¡Hasta luego!"));
@@ -429,6 +476,9 @@ bool writeProfileRegister(uint8_t profile, ProfileOffset offset, uint16_t value)
 // Leer múltiples registros consecutivos
 bool readMultipleRegisters(uint16_t startAddress, uint8_t count) {
   Serial.print(F("Registros desde 0x"));
+  if (startAddress < 0x1000) Serial.print(F("0"));
+  if (startAddress < 0x100) Serial.print(F("0"));
+  if (startAddress < 0x10) Serial.print(F("0"));
   Serial.print(startAddress, HEX);
   Serial.println(F(":"));
   
@@ -438,6 +488,7 @@ bool readMultipleRegisters(uint16_t startAddress, uint8_t count) {
     
     if (value != 0xFFFF) {
       Serial.print(F("  [0x"));
+      if (address < 0x1000) Serial.print(F("0"));
       if (address < 0x100) Serial.print(F("0"));
       if (address < 0x10) Serial.print(F("0"));
       Serial.print(address, HEX);
@@ -458,6 +509,7 @@ bool readMultipleRegisters(uint16_t startAddress, uint8_t count) {
       Serial.println(F(")"));
     } else {
       Serial.print(F("  [0x"));
+      if (address < 0x1000) Serial.print(F("0"));
       if (address < 0x100) Serial.print(F("0"));
       if (address < 0x10) Serial.print(F("0"));
       Serial.print(address, HEX);
@@ -473,6 +525,7 @@ bool readMultipleRegisters(uint16_t startAddress, uint8_t count) {
 // Leer registro con visualización hexadecimal
 void readRegisterWithHex(uint16_t address) {
   Serial.print(F("Leyendo registro 0x"));
+  if (address < 0x1000) Serial.print(F("0"));
   if (address < 0x100) Serial.print(F("0"));
   if (address < 0x10) Serial.print(F("0"));
   Serial.print(address, HEX);
@@ -513,6 +566,8 @@ uint16_t hexStringToUint16(String hexString) {
 // Imprimir valor de registro con formato
 void printRegisterValue(uint16_t address, uint16_t value) {
   Serial.print(F("Registro 0x"));
+  // Siempre mostrar 4 dígitos hexadecimales para la dirección
+  if (address < 0x1000) Serial.print(F("0"));
   if (address < 0x100) Serial.print(F("0"));
   if (address < 0x10) Serial.print(F("0"));
   Serial.print(address, HEX);
