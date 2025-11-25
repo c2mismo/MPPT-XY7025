@@ -20,9 +20,15 @@
 #include <SoftwareSerial.h>
 
 // Configuración de pines para SoftwareSerial
-#define RX_PIN 10
-#define TX_PIN 11
-#define RE_DE_PIN 12  // Pin de control RE/DE para RS485
+const uint8_t RX_PIN = 2;
+const uint8_t TX_PIN = 3;
+// #define RE_DE_PIN 12;  // Pin de control RE/DE para RS485
+
+
+// Pines de comunicación
+const uint8_t MODBUS_RX = 2;   // RX Arduino -> RX XY7025
+const uint8_t MODBUS_TX = 3;   // TX Arduino -> TX XY7025
+// const uint8_t RE_DE_PIN 12;  // Pin de control RE/DE para RS485
 
 // Configuración de comunicación
 #define MODBUS_BAUDRATE 115200
@@ -30,7 +36,7 @@
 #define SLAVE_ADDRESS 1
 
 // Crear objeto SoftwareSerial para comunicación Modbus
-SoftwareSerial modbusSerial(RX_PIN, TX_PIN);
+SoftwareSerial modbusSerial(MODBUS_RX, MODBUS_TX);
 
 // Crear objeto XY7025_Modbus
 XY7025_Modbus xy7025(modbusSerial, SLAVE_ADDRESS);
@@ -79,8 +85,8 @@ void setup() {
   xy7025.setRetries(3);     // 3 reintentos
   
   // Configurar pin de control RE/DE
-  pinMode(RE_DE_PIN, OUTPUT);
-  digitalWrite(RE_DE_PIN, LOW); // Modo recepción por defecto
+  // pinMode(RE_DE_PIN, OUTPUT);
+  //digitalWrite(RE_DE_PIN, LOW); // Modo recepción por defecto
   
   // Mensaje de bienvenida
   Serial.println(F("=== XY7025 Modbus ReadWrite Example ==="));
